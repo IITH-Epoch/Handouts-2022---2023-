@@ -69,7 +69,7 @@
 \end{figure}
 \end{center}
 \begin{align*}
-{\LARGE{\textbf{Decision Trees}}}
+{\LARGE{\textbf{Logistic Regression}}}
 \end{align*}
 \graphicspath{{./media/}}
 \begin{align*}
@@ -77,14 +77,15 @@
 \end{align*}
 {\textcolor{black}{\textbf{
  \\
- 1. {What is Decision Tree?}\\
- 2. {How Decision Trees Works?}\\
- 3. {How to choose Splits?}\\
- % 4. {Understanding Entropy}\\
- 4. {Relation between Entropy and Gini Index}\\
- 5. {Decision Trees illustration}\\
+ 1. {What is Logistic Regression?}\\
+ 2. {How Logistic Regression Works?}\\
+\indent \    \textcolor{blue}{2.1 Hypothesis}\\
+ 3. {Cost Function}\\
+ 4. {Algorithms to minimize the Cost Function}\\
+ \textcolor{blue}{\indent \    4.1 Gradient Descent\\
+5. {Regularization}\\
  6. {Questions}\\
-7. {Decision Trees with python}\\
+7. {Logistic Regression with python}\\
 }}}
 \begin{center}
     {\textbf{Compiled by :}
@@ -92,162 +93,238 @@
 \end{center}
 
 \newpage
-\section{\text{\textcolor{black}{\large{What is Decision Tree}?}}}
-Decision Tree is one of the \textbf{supervised learning}\footnote{Machines are trained with the data that is \textbf{tagged} with the correct output, which is used to predict the output} algorithms of Machine Learning which is used for  regression and classification ,which create yes/no questions and continually split the data set until you isolate all data points belonging to each class . At the end all the leaf nodes dont split the data further , belong to a particular class.
+\section{\text{\textcolor{black}{\large{What is Logistic Regression}?}}}
+Logistic Regression is one of the \textbf{supervised learning}\footnote{Machines are trained with the data that is \textbf{tagged} with the correct output, which is used to predict the output} models of Machine Learning which takes data labeled into different classes as input for training , and then for test images it finds the probabilites for it to be in those different classes (discrete values).In other words , we can say that it predicts catergorical labels for a given test image.
 
 
-\section{\text{\textcolor{black}{\large{How Decision Tree works?}}}}
-A decision tree consists of two types of nodes: decision nodes and leaf nodes.Decision nodes are the nodes where decisions are taken based on the input variables. Leaf nodes represent the final output of the model. Decision tree uses a flow chart type of structure. The algorithm follows the following steps , 
-\begin{itemize}
-    \item It starts with the root node , then selects the best feature and best threshold which classifies our target
-    \item Then we look at the best feature in the remaining features and continue branching , until we find a perfect classification , i.e, no need for further branching from that nodes, which are leaf nodes.
-    \item So , recursively we are creating sub trees until there is no need to branch the nodes.
-\end{itemize}
-We consider all the features and thresholds for the splits , but consider the ones which give least cost value (will be seen further).At each step we are trying to minimise some cost value , so we could say that  Decision tree is going to follow Greedy , Top-Down , Recursive Partitioning.
+\section{\text{\textcolor{black}{\large{How Logistic regression works?}}}}
+Let us consider binary-classification at the moment . Now we can give classes based on a value say y ( $y=0$ and $y=1$ ).
+So , The model first estimates the real-valued output (a confidence factor) using regression and then uses a decision rule to classify the test image based on the probability associated with it(a confidence factor) into either of the classes (class 0 or class 1).\\ 
 
-\section{\text{\textcolor{black}{\large{How to choose Splits?}}}}
-The next question we would like to ask is how to choose the best splits. 
-We can use the concept of Information Gain to do that.
-Information gain , is a measure of the reduction in entropy (uncertainty) achieved by splitting the data on a particular feature. Entropy$(E)$ tells us the amount of uncertainty or randomness in the data or the purity of that node i.e.    
+In the case of multi-class classification , we implement multiple logistic regression classifiers , one for each of the K classes in the training dataset.In each of those classifiers we treat one class as (say y=0) samples and treat all the remaining classes into y=1 samples respectively and find the probabilities.Then at last , we pick the class to which the image gets the highest probability.
+
+
+We define the  \textbf{Hypothesis} similar to Linear Regression but with an additional Sigmoid Function wrapped around it, so that the value which we get from hypothesis is always in between 0 and 1 (any other function other than sigmoid can be taken which brings the value to between 0 and 1), then a \textbf{Cost/Loss function} that gives the error in the Hypothesis while an algorithm is used to reduce the Cost function.
 \begin{align*}
-    E = -\sum_{i=1}^k p(y= i)\log_k p(y=i)
+    \textcolor{blue}{\text{{\textbf{2.1 Hypothesis}}}}
 \end{align*}
-where , $p(y=i) = \dfrac{\text{number of data points of $i^{th}$class }}{\text{total number of data points}}  $ .\\The parameter information gain is caluclated as the difference between the entropy of the original set and the weighted average entropy of the subsets generated by the split. The higher the information gain, the more informative the attribute or feature is for the classification task.
+Let N be the number of features and M be the number of data set points in the data.\\ And let the dataset X is defined as follows 
+\begin{equation*}
+  X = \begin{bmatrix} 
+x_1\\x_2\\\vdots\\x_M 
+\end{bmatrix}\in \mathbb{R}^{M \times N}
+\end{equation*}
+\begin{equation*}
+x_i = \begin{bmatrix} x_{i}^{(1)}&x_{i}^{(2)}& \cdots & x_{i}^{(N)}\end{bmatrix} \in \mathbb{R}^{1\times N}
+\end{equation*}
+\begin{equation*}
+y_i \in \mathbb{R}
+\end{equation*}
+where $x_i$ denote the $i^\text{th}$ data point and $x_{i}^{(j)}$ denotes the $j^\text{th}$ feature of the $i^\text{th}$ data point.\\
+Let the Weights/Parameters/Regression Coefficients be represented by $\theta$ as follows
 \begin{align*}
-    {IG} = E(parent) - \sum_{i=1}^k w_iE(child_i) 
+    \theta = \begin{bmatrix}
+\theta_1\\\theta_2\\\vdots\\\theta_N
+\end{bmatrix}
 \end{align*}
-Here we have considered entropy to kind of find the impurity of a node ,  we can also use the concept of Gini index instead of entropy .
-The Gini index is a measure of impurity or diversity in a set of data. It calculates the probability of misclassifying a random sample element based on the distribution of classes in the set. The Gini index ranges from 0 (perfectly pure, i.e., all elements belong to the same class) to 1 (perfectly impure, i.e., the elements are evenly distributed across all classes).\\Let there be $N_j$
-input samples in total for leaf j which are classified into m categories.
-Let $n_{ji}$, i belongs to [m] denote the number of samples classified into the ith category. The Gini impurity index of a leaf is given by
+Let the values we get from the hypothesis function for all the data set points be represented by vector Y and bias values be represenetd by b.
+\begin{equation*}
+  Y = \begin{bmatrix} 
+\hat{y_1}\\\hat{y_2}\\\vdots\\\hat{y_M} 
+\end{bmatrix}\in \mathbb{R}^{M \times 1}
+\end{equation*}
+\textbf{Hypothesis} of Logistic Regression is defined as,\\
 \begin{align*}
-    GI = 1 - \sum_{i=1}^m p_{ji}^2
+    \hat{y}_i = \sigma(\langle x_i, \theta\rangle  + b)
 \end{align*}
-Then the information gain function is modified as ,
+where $\sigma(x)$ is the sigmoid function  $\left(\dfrac{1}{1+ e^{-x}}\right)$ and $\langle \cdot,\cdot\rangle$ represents dot product between two vectors. \\
+
+
+
+\section{\text{{\large{Cost/Loss Function}}}}
+Let us take there to be two classes with labels y=0 and y=1. Then we have , 
 \begin{align*}
-    {IG} = GI(parent) - \sum_{i=1}^k w_iGI(child_i) 
+    p(y=1|X;\theta) &= \dfrac{1}{1+e^{-z}} = h_\theta(x) \\
+    p(y=0|X;\theta) &= 1 - \dfrac{1}{1+e^{-z}} = 1-h_\theta(x)
 \end{align*}
-
-
-
-
-\section{\text{{\large{Relation between Entropy and Gini Index}}}}
-The Gini index and entropy are mathematically related and can be expressed in terms of each other.
-The Gini index (G) can be written as:
+where z = $\langle X,\theta \rangle$ + B and \\ y can take only two values {0,1}.
+So , 
 \begin{align*}
-    G = 2H - 1
+    p(y|X;\theta) = (h_\theta(x))^{y}(1-h_\theta(x))^{1-y}
 \end{align*}
-where H is the normalized entropy of the distribution, which is given by:
+Now, we would want to find the weights $\theta$ that maximizes the log-likelihood l.
+Likelihood $L(\theta)$ is ,
 \begin{align*}
-    H = -\sum \dfrac{[p(i)\log(p(i))]}{\log(n)}
+    L(\theta) &= p(y|X;\theta) \\ &= \prod_{i=1}^{M} p(y^{(i)}|X^{(i)};\theta) \\
+    &= \prod_{i=1}^{M} (h_\theta(x^{(i)}))^{y^{(i)}}(1-h_\theta(x^{(i)}))^{1-y^{(i)}}
 \end{align*}
-where p(i) is the proportion of the population holding the ith value, and n is the total number of values in the distribution.
-
-The Gini index is related to the normalized entropy through a linear transformation, and the normalized entropy can be written in terms of the Gini index and the entropy of the individual values in the distribution.
-
-\section{\text{{\large{Decision Trees illustration}}}}
-Let us take that we want to predict if a customer will buy a product or not based on two parameters his age and income. And let us take that in the dataset we have 50 percent of customers have bought the product and 50 percent didn't.
-\\
-So , initially the entropy of datset is 
+where $x^{(i)} , y^{(i)}$ denote the observed values of X and Y in the ith training sample
 \begin{align*}
-    E = -\dfrac{1}{2}* \log_2{\dfrac{1}{2}} - \dfrac{1}{2}* \log_2{\dfrac{1}{2}} = 1.
+    l(\theta) &= \log(L(\theta)) \\
+    &= \sum^{M}_{i = 1} y^{(i)}\log(h_\theta(x^{(i)})) + (1 - y^{(i)})\log(1-h_\theta(x^{(i)}))
 \end{align*}
-\\
-In case 1 , let us take that we split initially based on age i.e , age $\le$20 and age$>$20 , and let the cut be as in table 1 and 2 
-\begin{table}[]
-    \centering
-    \begin{tabular}{c|c}
-        Age $\le$ 20 & Purchase \\
-        Yes & 30 \\
-        No & 20
-    \end{tabular}
-    \caption{}
-    \label{tab:my_label}
-\end{table}
-\begin{table}[]
-    \centering
-    \begin{tabular}{c|c}
-        Age $>$ 20 & Purchase \\
-        Yes & 20 \\
-        No & 30
-    \end{tabular}
-    \caption{}
-    \label{tab:my_label}
-\end{table}
-
-the entropy and information gain are ,
+We would want to maximize the log likelihood , which will be taken as the cost function , multiplying by a factor of 1/M doesnt change anything , so
 \begin{align*}
-    E(age \le 20) &=  -0.6 * log2(0.6) - 0.4 * log2(0.4) = 0.971 \\
-    E(age > 20) &= -0.4 * log2(0.4) - 0.6 * log2(0.6) = 0.971 \\
-    \text{weighted entropy} &= (2/5) * E(Age \le 20) + (3/5) * E(Age > 20) = 0.971 \\
-    \text{information gain} &= \text{entropy(before) - weighted entropy(after)} = 0.029
+    J(\theta) = \dfrac{1}{M} \sum^{M}_{i = 1} y^{(i)}\log(h_\theta(x^{(i)})) + (1 - y^{(i)})\log(1-h_\theta(x^{(i)}))
+\end{align*}
+Where M is the number of samples
+
+
+\section{\text{{\large{Algorithms to maximize the Cost Function}}}}
+
+One of the algorithms used in Logistic Regression to maximize the Cost function is Gradient Ascent Algorithm.
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{4.1 Gradient Aescent}}}}
+\end{align*}
+In Gradient Ascent, we move in the direction of the slope , which is attained by finding the gradient of the Cost Function concerning each parameter and then updating the parameter iteratively.
+\begin{align*}
+    \theta^{(j)} = \theta^{(j)} + \alpha \frac{\partial}{\partial\theta^{(j)}}J(\theta)
+\end{align*}
+where $\alpha$ is the Learning rate. Now, the learning rate decides how big the step should be taken in that direction.\\
+% , i.e. Speed rate at which gradient moves during Gradient Descent
+
+Differentiating the loss function for a single sample ,
+\begin{align*}
+    \frac{\partial}{\partial\theta^{(j)}}J(\theta) &= (y-h_\theta(x))x_j
+\end{align*}
+Hence,
+\begin{align*}
+     \theta^{(j)} = \theta^{(j)} + \alpha (y-h_\theta(x))x_j
+\end{align*}
+For multiple samples,
+\begin{align*}
+\implies \theta^{(j)} = \theta^{(j)} - \frac{\alpha}{M}\displaystyle\sum_{i = 1}^{M}(h_\theta(x^{(i)}) - y^{(i)} ).x_j^{(i)}
 \end{align*}
 
-Suppose we split on other parameter say income and then also we find the information gain , the more the information gain the more it can be used as a condition to split.
+
+\section{\text{{\large{Regularization}}}}
+
+One of the major drawbacks of logistic regression is that it cant be used for linearly seperable data , it overfits for very high dimension and sparse data . In order to avoid this , we add a regularizer term $\lambda \mod{w}^2$ to our cost function. This will help control of the weight vector because the norm of the weight vector does not become very large.
 
 \section{\text{{\large{Questions}}}}
 
 \textbf{Subjective : }
 \begin{enumerate}
-    \item What is the maximum number of nodes a binary decision tree can have if the input vector has L features?
-    \item What is the Time complexity of DT classfier?
-    \item List Down the possible domains where decision trees could be used.
-    \item Is Feature scaling required with decision trees ?
-    \item How to prevent overfitting in decision tree learning ?\\[10pt]
+    \item Is the decision boundary linear or non linear in logistic regression?
+    \item  Is Logistic Regression affected by Outliers?
+    \item Name three methods by which we can increase the accuracy of
+logistic regression.
+    \item Why isn't least squared error considered in Logistic Regression ?
+    \item What is the significance of the bias term b ?\\[10pt]
 \end{enumerate}
 
 
-\section{\text{{\large{Decision Trees with python}}}}
-Few \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Decision%20Trees/Decision%20Trees.ipynb}{\textcolor{blue}{\underline{Decision Tree Algorithm functions}}} written only using \texttt{numpy} (used iris dataset from the UCI Machine Learning Repository)\\
+\textbf{Objective : }
+\begin{enumerate}[1)]
+    \item What happens when we train a non-regularized logistic regression model on linearly separable data ?
+    \begin{enumerate}[a)]
+        \item The Parameters in the vector w would approach $\infty$
+        \item The Parameters in the vector w would approach $\infty$
+        \item The Parameters in the vector w would approach 0
+        \item None of the above
+    \end{enumerate} 
+     \item Suppose that we train two logistic regression models on same data by initializing the weights of one model to all zeros and other to all ones. Which of the models will perform better on test data ?
+    \begin{enumerate}[a)]
+        \item  The model with initial weights as all zeros 
+        \item The model with initial weights as all ones 
+        \item  Both models will perform similarly 
+        \item None of the above
+    \end{enumerate}
+    \item Suppose we have a set of training inputs $(x_1,y_1),...,(x_n,y_n)$ and we train a logistic regression classifier on this data. Now if we flip the labels on all the training inputs i.e; we change $y_i$ to $1-y_i$ for all i. What would happen to the predicted output/probability of assigning label 1 for each training sample ?
+    \begin{enumerate}[a)]
+        \item  Each probability $p_i$ will become $1-p_i$
+        \item Each probability $p_i$ will be halved
+        \item The parameters in the vector w would approach 0
+        \item None of the above
+    \end{enumerate}
+\end{enumerate}
+
+
+\section{\text{{\large{Logistic Regression with python}}}}
+A \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Logistic%20Regression/Logistic%20Regression.ipynb}{\textcolor{blue}{\underline{Logistic Regression model}}} is built from scratch by only using \texttt{numpy , pandas} and \texttt{matplotlib} libraries.\\
 
 \begin{lstlisting}[language=python, style = mystyle]
 	  import numpy as np
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import math
 \end{lstlisting}
 \begin{lstlisting}[language=python, style = mystyle]
-  def entropy(y):
-    _, counts = np.unique(y, return_counts=True)
-    p = counts / len(y)
-    return -np.sum(p * np.log2(p))
+  def loading_data():
+      data_set = pd.read_csv('dataset.csv')
+  
+      training_data = data_set.sample(frac=0.75,random_state=25)
+      testing_data = data_set.drop(training_data.index)
+  
+      train_y = training_data['quality']
+      test_y = training_data['quality']
+      del training_data['quality']
+      del testing_data['quality']
+  
+      training_data_normal = (training_data - training_data.mean())/training_data.std()
+      testing_data_normal = (testing_data - testing_data.mean())/testing_data.std()
+      
+      training_data = training_data_normal.to_numpy()
+      testing_data = testing_data_normal.to_numpy()
+      train_y = train_y.to_numpy()
+      test_y = test_y.to_numpy()
+      
+      return (training_data,train_y),(testing_data,test_y)
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+	  (train_X,train_Y),(test_X,test_Y) = loading_data()
 
-    # Function to calculate information gain of a split
-    def information_gain(X, y, feature, threshold):
-        split_mask = X[:, feature] < threshold
-        left_labels, right_labels = y[split_mask], y[~split_mask]
-        parent_entropy = entropy(y)
-        left_entropy = entropy(left_labels)
-        right_entropy = entropy(right_labels)
-        left_weight = len(left_labels) / len(y)
-        right_weight = len(right_labels) / len(y)
-        return parent_entropy - (left_weight * left_entropy) - (right_weight * right_entropy)
-
-    # Building the tree recursively
-    def build_tree(X, y, depth, max_depth):
-        n_samples, n_features = X.shape
-        n_labels = len(np.unique(y))
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+    class LogisticRegressor(object):
+      def __init__(self) :
+        self.M = train_X.shape[0]
+        self.N = train_X.shape[1]
+        self.weights = [np.random.randn(self.N,1)]
+        self.bias = np.random.randn()
+        self.test_size = test_X.shape[0]
+      
+      def SGD(self,epochs,lr):
+        for j in range(epochs):
+          self.weights = self.weights + (lr/self.M)*(self.loss_deri())
+          print("Epoch : "+ str(j) + " Loss value : " + str(self.loss_function()) + " Accuracy : " + str(self.accuracy()))
+          
+      def hypo_function(self,train_entry):
+        z = self.bias + np.dot(train_entry,self.weights)[0][0]
+        return 1/(1+np.exp(-z))
+          
+      def loss_function(self):
+        loss = 0
+        for i in range(self.M):
+          loss = loss + train_Y[i]*(math.log(self.hypo_function(train_X[i]))) + (1-train_Y[i])*(math.log(self.hypo_function(train_X[i])))
         
-        # Check if node is pure or max depth is reached
-        if n_labels == 1 or depth >= max_depth:
-            return {'class': np.bincount(y).argmax()}
+        loss = loss/self.M
+        return loss
+      
+      def loss_deri(self):
+        loss_deri = np.zeros([self.N,1])
+        for i in range(self.M):
+          loss_deri = loss_deri + (train_Y[i] - self.hypo_function(train_X[i]))*(np.transpose(train_X[i]))
+        return loss_deri
+      
+      def accuracy(self):
+        correct = 0
+        curr = 0
+        for i in range(self.test_size):
+          if(self.hypo_function(test_X[i]) >= 0.5):
+            curr = 1
+          else:
+            curr = 0
+          if(curr == test_Y[i]):
+            correct = correct+1
         
-        # Find best split
-        best_feature, best_threshold, best_info_gain = None, None, -1
-        for feature in range(n_features):
-            thresholds = np.unique(X[:, feature])
-            for threshold in thresholds:
-                info_gain = information_gain(X, y, feature, threshold)
-                if info_gain > best_info_gain:
-                    best_feature = feature
-                    best_threshold = threshold
-                    best_info_gain = info_gain
-        
-        # Split data and recursively build subtrees
-        split_mask = X[:, best_feature] < best_threshold
-        left_tree = build_tree(X[split_mask], y[split_mask], depth=depth+1, max_depth=max_depth)
-        right_tree = build_tree(X[~split_mask], y[~split_mask], depth=depth+1, max_depth=max_depth)
-        
-        # Return decision node
-        return {'feature': iris.columns[best_feature], 'threshold': best_threshold,
-                'left': left_tree, 'right': right_tree}
+        return correct/self.test_size
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+	  Model = LogisticRegressor()
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+	  Model.SGD(epochs=100,lr=0.01)
 \end{lstlisting}
 
 \end{document}
