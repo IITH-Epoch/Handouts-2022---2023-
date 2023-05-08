@@ -1,0 +1,254 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{listings}
+
+
+
+
+
+%Shortcut for strings "Code" and "List of Code"
+\renewcommand{\lstlistingname}{Code}
+\renewcommand{\lstlistlistingname}{List of Code}
+
+%This is the template for code styling, named as "mystyle"
+
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{enumerate}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{amsmath}
+\usepackage{hyperref}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backgroundcolour},
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{green!60!black},
+	keywordstyle=\color{magenta},
+	stringstyle=\color{blue!50!red},
+	showstringspaces=false, 
+	captionpos=b, %Position of caption top/bottom
+	%numbers=left,	%This command adds line numbers to the code
+	%numberstyle=\footnotesize\color{gray}, %This command sets the colour of the line numbers
+	%numbersep=10pt, %This command determines the separation of the line numbers from the main margin
+	%stepnumber=2,
+	tabsize=2,
+	frame=single, %setting to select the frame for code ... options available {L,single,shadowbox}
+	%framerule=1pt, %selecting the width of the frame
+	%rulecolor=\color{red}, %selecting the colour of the frame
+	breaklines=true,
+	inputpath=code
+}
+
+
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Decision Trees}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {What is Decision Tree?}\\
+ 2. {How Decision Trees Works?}\\
+ 3. {How to choose Splits?}\\
+ % 4. {Understanding Entropy}\\
+ 4. {Relation between Entropy and Gini Index}\\
+ 5. {Decision Trees illustration}\\
+ 6. {Questions}\\
+7. {Decision Trees with python}\\
+}}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Srinith}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{What is Decision Tree}?}}}
+Decision Tree is one of the \textbf{supervised learning}\footnote{Machines are trained with the data that is \textbf{tagged} with the correct output, which is used to predict the output} algorithms of Machine Learning which is used for  regression and classification ,which create yes/no questions and continually split the data set until you isolate all data points belonging to each class . At the end all the leaf nodes dont split the data further , belong to a particular class.
+
+
+\section{\text{\textcolor{black}{\large{How Decision Tree works?}}}}
+A decision tree consists of two types of nodes: decision nodes and leaf nodes.Decision nodes are the nodes where decisions are taken based on the input variables. Leaf nodes represent the final output of the model. Decision tree uses a flow chart type of structure. The algorithm follows the following steps , 
+\begin{itemize}
+    \item It starts with the root node , then selects the best feature and best threshold which classifies our target
+    \item Then we look at the best feature in the remaining features and continue branching , until we find a perfect classification , i.e, no need for further branching from that nodes, which are leaf nodes.
+    \item So , recursively we are creating sub trees until there is no need to branch the nodes.
+\end{itemize}
+We consider all the features and thresholds for the splits , but consider the ones which give least cost value (will be seen further).At each step we are trying to minimise some cost value , so we could say that  Decision tree is going to follow Greedy , Top-Down , Recursive Partitioning.
+
+\section{\text{\textcolor{black}{\large{How to choose Splits?}}}}
+The next question we would like to ask is how to choose the best splits. 
+We can use the concept of Information Gain to do that.
+Information gain , is a measure of the reduction in entropy (uncertainty) achieved by splitting the data on a particular feature. Entropy$(E)$ tells us the amount of uncertainty or randomness in the data or the purity of that node i.e.    
+\begin{align*}
+    E = -\sum_{i=1}^k p(y= i)\log_k p(y=i)
+\end{align*}
+where , $p(y=i) = \dfrac{\text{number of data points of $i^{th}$class }}{\text{total number of data points}}  $ .\\The parameter information gain is caluclated as the difference between the entropy of the original set and the weighted average entropy of the subsets generated by the split. The higher the information gain, the more informative the attribute or feature is for the classification task.
+\begin{align*}
+    {IG} = E(parent) - \sum_{i=1}^k w_iE(child_i) 
+\end{align*}
+Here we have considered entropy to kind of find the impurity of a node ,  we can also use the concept of Gini index instead of entropy .
+The Gini index is a measure of impurity or diversity in a set of data. It calculates the probability of misclassifying a random sample element based on the distribution of classes in the set. The Gini index ranges from 0 (perfectly pure, i.e., all elements belong to the same class) to 1 (perfectly impure, i.e., the elements are evenly distributed across all classes).\\Let there be $N_j$
+input samples in total for leaf j which are classified into m categories.
+Let $n_{ji}$, i belongs to [m] denote the number of samples classified into the ith category. The Gini impurity index of a leaf is given by
+\begin{align*}
+    GI = 1 - \sum_{i=1}^m p_{ji}^2
+\end{align*}
+Then the information gain function is modified as ,
+\begin{align*}
+    {IG} = GI(parent) - \sum_{i=1}^k w_iGI(child_i) 
+\end{align*}
+
+
+
+
+\section{\text{{\large{Relation between Entropy and Gini Index}}}}
+The Gini index and entropy are mathematically related and can be expressed in terms of each other.
+The Gini index (G) can be written as:
+\begin{align*}
+    G = 2H - 1
+\end{align*}
+where H is the normalized entropy of the distribution, which is given by:
+\begin{align*}
+    H = -\sum \dfrac{[p(i)\log(p(i))]}{\log(n)}
+\end{align*}
+where p(i) is the proportion of the population holding the ith value, and n is the total number of values in the distribution.
+
+The Gini index is related to the normalized entropy through a linear transformation, and the normalized entropy can be written in terms of the Gini index and the entropy of the individual values in the distribution.
+
+\section{\text{{\large{Decision Trees illustration}}}}
+Let us take that we want to predict if a customer will buy a product or not based on two parameters his age and income. And let us take that in the dataset we have 50 percent of customers have bought the product and 50 percent didn't.
+\\
+So , initially the entropy of datset is 
+\begin{align*}
+    E = -\dfrac{1}{2}* \log_2{\dfrac{1}{2}} - \dfrac{1}{2}* \log_2{\dfrac{1}{2}} = 1.
+\end{align*}
+\\
+In case 1 , let us take that we split initially based on age i.e , age $\le$20 and age$>$20 , and let the cut be as in table 1 and 2 
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|c}
+        Age $\le$ 20 & Purchase \\
+        Yes & 30 \\
+        No & 20
+    \end{tabular}
+    \caption{}
+    \label{tab:my_label}
+\end{table}
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|c}
+        Age $>$ 20 & Purchase \\
+        Yes & 20 \\
+        No & 30
+    \end{tabular}
+    \caption{}
+    \label{tab:my_label}
+\end{table}
+
+the entropy and information gain are ,
+\begin{align*}
+    E(age \le 20) &=  -0.6 * log2(0.6) - 0.4 * log2(0.4) = 0.971 \\
+    E(age > 20) &= -0.4 * log2(0.4) - 0.6 * log2(0.6) = 0.971 \\
+    \text{weighted entropy} &= (2/5) * E(Age \le 20) + (3/5) * E(Age > 20) = 0.971 \\
+    \text{information gain} &= \text{entropy(before) - weighted entropy(after)} = 0.029
+\end{align*}
+
+Suppose we split on other parameter say income and then also we find the information gain , the more the information gain the more it can be used as a condition to split.
+
+\section{\text{{\large{Questions}}}}
+
+\textbf{Subjective : }
+\begin{enumerate}
+    \item What is the maximum number of nodes a binary decision tree can have if the input vector has L features?
+    \item What is the Time complexity of DT classfier?
+    \item List Down the possible domains where decision trees could be used.
+    \item Is Feature scaling required with decision trees ?
+    \item How to prevent overfitting in decision tree learning ?\\[10pt]
+\end{enumerate}
+
+
+\section{\text{{\large{Decision Trees with python}}}}
+Few \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Decision%20Trees/Decision%20Trees.ipynb}{\textcolor{blue}{\underline{Decision Tree Algorithm functions}}} written only using \texttt{numpy} (used iris dataset from the UCI Machine Learning Repository)\\
+
+\begin{lstlisting}[language=python, style = mystyle]
+	  import numpy as np
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+  def entropy(y):
+    _, counts = np.unique(y, return_counts=True)
+    p = counts / len(y)
+    return -np.sum(p * np.log2(p))
+
+    # Function to calculate information gain of a split
+    def information_gain(X, y, feature, threshold):
+        split_mask = X[:, feature] < threshold
+        left_labels, right_labels = y[split_mask], y[~split_mask]
+        parent_entropy = entropy(y)
+        left_entropy = entropy(left_labels)
+        right_entropy = entropy(right_labels)
+        left_weight = len(left_labels) / len(y)
+        right_weight = len(right_labels) / len(y)
+        return parent_entropy - (left_weight * left_entropy) - (right_weight * right_entropy)
+
+    # Building the tree recursively
+    def build_tree(X, y, depth, max_depth):
+        n_samples, n_features = X.shape
+        n_labels = len(np.unique(y))
+        
+        # Check if node is pure or max depth is reached
+        if n_labels == 1 or depth >= max_depth:
+            return {'class': np.bincount(y).argmax()}
+        
+        # Find best split
+        best_feature, best_threshold, best_info_gain = None, None, -1
+        for feature in range(n_features):
+            thresholds = np.unique(X[:, feature])
+            for threshold in thresholds:
+                info_gain = information_gain(X, y, feature, threshold)
+                if info_gain > best_info_gain:
+                    best_feature = feature
+                    best_threshold = threshold
+                    best_info_gain = info_gain
+        
+        # Split data and recursively build subtrees
+        split_mask = X[:, best_feature] < best_threshold
+        left_tree = build_tree(X[split_mask], y[split_mask], depth=depth+1, max_depth=max_depth)
+        right_tree = build_tree(X[~split_mask], y[~split_mask], depth=depth+1, max_depth=max_depth)
+        
+        # Return decision node
+        return {'feature': iris.columns[best_feature], 'threshold': best_threshold,
+                'left': left_tree, 'right': right_tree}
+\end{lstlisting}
+
+\end{document}
+
