@@ -169,9 +169,9 @@ There are mainly 5 types of boosting algorithms:
  \begin{align*}
     H_T(X) = \sum_{t=1}^{T}\alpha_t h_t(x)
  \end{align*}
- $\alpha_t$ and $h_t$ is chosen such that 
+ $\alpha_t$ and $h_t$ are chosen such that we minimize the fitting loss which is given as follows:
  \begin{align*}
-    \alpha_t,h_t = \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} loss(y^{(n)},H_{T-1}(x^{(n)}) + \alpha_t h_T(x^{(n)}))
+    \alpha_t,h_t = \arg \min_{\alpha_t,h_t} \frac{1}{N} \sum_{n=1}^{N} loss(y^{(n)},H_{T-1}(x^{(n)}) + \alpha_t h_T(x^{(n)}))
  \end{align*}
  We need to solve the above optimization problem. Here in this example, we will consider an exponential loss function given by:
  \begin{align*}
@@ -180,16 +180,21 @@ There are mainly 5 types of boosting algorithms:
  Let $\mathbb{L}(h(X^{(n)}) \neq y^{(n)}) = \frac{1}{2}(1 - h(X^{(n)}).y^{(n)})$. Using this we can simplify the optimization problem as follow:
  \begin{align*}
     \alpha_t,h_t &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}) + \alpha_t h_T(x))) \\
-    &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}))) \exp(-y^{(n)}\alpha_t h_T(x^{(n)}))
+    &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}))) \exp(-y^{(n)}\alpha_t h_T(x^{(n)})) \\
+    &= \arg \min_{\alpha_t,h_t} w_T^{(n)} \exp(-y^{(n)}\alpha_t h_T(x^{(n)}))
  \end{align*}
  Solving the optimization problem we get 
  \begin{align*}
     \alpha_t &= \frac{1}{2} \log \frac{1 - err_t}{err_t} \\
-    \text{Where, } err_t &= \frac{\sum_{n=1}^{N}w^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}} \\
+    \text{Where, } err_t &= \frac{\sum_{n=1}^{N}w_t^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}} \\
  \end{align*}
  With that, we also find that $h_t$ minimizes the weighted 0/1-loss i.e.
  \begin{align*}
-    h_t = \arg \min_{h} \sum_{i=0}^{N} w^{(t)}_i \mathbb{L}(h(X^{(i)}) \neq y^{(i)})
+    h_t = \arg \min_{h} \sum_{i=0}^{N} w^{(i)}_t \mathbb{L}(h(X^{(i)}) \neq y^{(i)})
+ \end{align*}
+ We also find the relationship between weights as well:
+ \begin{align*}
+    w_{t+1}^{(n)} = w_t^{(n)} \exp(-y^{(n)}\alpha_t h_t(x^{(n)}))
  \end{align*}
  \\
 The algorithm is given as follows:
@@ -319,6 +324,6 @@ CatBoost was developed most recently among the 5 boosting algorithms but very cl
 \indent \textbf{d)} decision tree
 
 \section{\text{{\large{Implementing AdaBoost}}}}
-The full working code can be found on this \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Linear%20Regression/Linear%20Regression.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using numpy. We have used sklearn to import only the decision tree that can find the best split.
+The full working code can be found on this \href{https://github.com/Anshul-Sangrame/Handouts-2022-2023/blob/main/Boosting%20and%20bagging/code/main.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using numpy. We have used sklearn to import only the decision tree that can find the best split.
 \lstinputlisting[language=Python, label=gcd]{./code/Adaboost.py}
 \end{document}
