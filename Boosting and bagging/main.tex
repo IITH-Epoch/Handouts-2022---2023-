@@ -1,0 +1,324 @@
+\documentclass{homework}
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption*{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Linear Regression}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {What is Bootstrapping?}\\
+ 2. {What is Bagging}\\
+ 3. {How Bagging Works?}\\
+\indent \    \textcolor{blue}{3.1 Bais and variance}\\
+\indent \    \textcolor{blue}{3.2 How Bagging reduces variance?}\\
+\indent \    \textcolor{blue}{3.3 Effect of Correlation}\\
+\indent \    \textcolor{blue}{3.4 Random Forests}\\
+ 4. {What is boosting?}\\
+\indent \  \textcolor{blue}{4.1 Weighted dataset}\\
+\indent \  \textcolor{blue}{4.2 Different type of boosting algorithm}\\
+\indent \  \textcolor{blue}{4.3 AdaBoost}\\
+\indent \  \textcolor{blue}{4.4 GBM}\\
+\indent \  \textcolor{blue}{4.5 XGBM}\\
+\indent \  \textcolor{blue}{4.6 LightGBM}\\
+\indent \  \textcolor{blue}{4.7 CatBoost}\\
+\indent \  \textcolor{blue}{4.8 Comparison of different boosting algorithms}\\
+5. {Limitations and Assumptions}\\
+6. {Questions}\\
+7. {Implementing AdaBoosting}\\}}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Anshul Sangrame}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{What is Bootstrapping?}}}}
+Let's first start by understanding what is Bootstrapping. This statistical technique consists in generating samples of size B (called bootstrap samples) from an initial dataset of size N by randomly drawing with replacement B observations.
+\section{\text{\textcolor{black}{\large{What is Bagging?}}}}
+The algorithm is explained in the following steps:
+\begin{enumerate}
+    \item Given a dataset $D$ with $N$ training points and a training model
+    \item Create M bootstrap samples of $D$ i.e $\{\tilde{D}_{i}\}_{i=1}^{M}$ with same number of training points i.e $N$.
+    \item Create M copies of untrained model $\{h_i\}_{i=i}^{M}$ and train each $h_i$ on $\tilde{D_i}$
+    \item Let $y_i$ be predicted value of mode $h_i$. Then the final predicted value will be $y = \frac{1}{M}\sum_{i=1}^{M}y_i$ 
+\end{enumerate}
+
+
+
+\section{\text{{\large{How Bagging works?}}}}
+Now that we know the algorithms, we will try to understand how does it work. But for that, we need some knowledge of bias and variance.
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{3.1 Bais and variance}}}}
+\end{align*}
+Let $\hat{y}$ be the predicted target value of a random input $X$ and $y$ be the actual target value. $y_*$ be the best-predicted target value of input $X$ that can be made. We can show that,
+\begin{align*}
+    E[(\hat{y} - y)^2] = (y_* - E[\hat{y}])^2 + Var[\hat{y}] + Var[y]
+\end{align*}
+We can interpret the following terms in the above equation:
+\begin{enumerate}
+    \item $E[(\hat{y} - y)^2]$ is the expected loss of the predicted value. We need to minimize this.
+    \item $(y_* - E[\hat{y}])^2$ is called the bais. It indicates how close is the predicted value to the best prediction that can be achieved. Higher bias corresponds to underfitting.
+    \item $Var[\hat{y}]$ is called the variance. It indicates the amount of variability in the predictions (a higher value corresponds to overfitting).
+    \item $Var[y]$ is called the Bayes error and is the inherent unpredictability of the targets. We cannon reduce this.
+\end{enumerate}
+For a better understanding refer to the image below:
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics*[scale = 0.5]{./media/bias-and-variance.jpg}
+\end{figure}
+\newpage
+Other useful observations related to bias and variance are:
+\begin{enumerate}
+    \item High bias indicates that the model is less complex and is not trained sufficiently(i.e. training error is high) which indicates underfitting.
+    \item High variance indicates that the model is more complex and is over-trained (i.e. training error is low) which indicates overfitting.
+\end{enumerate}
+The above two points are portrayed in the following image:
+\begin{figure}[!ht]
+    \centering
+    \includegraphics*[scale=0.5]{./media/bias-and-variance-loss-graph.png}
+\end{figure}
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.2 How Bagging reduces variance?}}}}
+ \end{align*}
+In the previous section, we saw different terms in the expected loss function. Now we will try to understand how each term is affected in bagging.
+\begin{enumerate}
+    \item Bayes error: Unchanged, since we have no control over it.
+    \item Bais: Unchanged
+        \begin{align*}
+            E[\hat{y}] &= E[\frac{1}{M}\sum_{i=1}^{M}\hat{y}_i] \\
+                &= \frac{1}{M}\sum_{i=1}^ME[\hat{y}_i] \\
+                &= E[\hat{y}_1]
+        \end{align*}
+    \item Variance: Reduced, since we're averaging over independent
+    samples
+        \begin{align*}
+            Var[\hat{y}] &= Var[\frac{1}{M}\sum_{i=1}^{M}\hat{y}_i] \\
+                &= \frac{1}{M^2}\sum_{i=1}^{M} Var[\hat{y}_i] \\
+                &= \frac{1}{M}Var[\hat{y}_1]
+        \end{align*}
+\end{enumerate}
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.3 Effect of Correlation}}}}
+ \end{align*}
+Till now we assumed that the data are independent and then we saw the variance decreases by a factor of $M$. However, if the data are dependent on each other, the prediction made by each model is also not independent. Hence, we cannot claim the same. In fact, Variance is given by the following formula:
+\begin{align*}
+    Var[\frac{1}{M}\sum_{i=1}^{M}\hat{y_i}] = \frac{1}{M}(1-\rho)\sigma^2 + \rho\sigma^2
+\end{align*}
+Where $\rho$ is the correction factor and $\sigma$ is the standard deviation.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.4 Random Forests}}}}
+ \end{align*}
+Random Forest is a bagging method with a learning model as decision trees. In addition, while selecting a bootstrap dataset for each decision tree, it chooses a random set of features on which the decision tree will split. This additional trick will ensure all predictions made by decision trees are not dependent. \\
+\\
+Random forests are probably the best black-box machine learning algorithm. They often work well with no tuning whatsoever and are the most widely used algorithm in Kaggle competition.
+
+\section{\text{{\large{What is boosting?}}}}
+Boosting methods work in the same spirit as bagging methods: we build a family of models that are aggregated to obtain a strong learner that performs better. However, unlike bagging which mainly aims at reducing variance, boosting is a technique that consists of fitting sequentially multiple weak learners in a very adaptative way: each model in the sequence is fitted giving more importance to observations in the dataset that were badly handled by the previous models in the sequence. In this way, the bias is lowered.  \\
+\\
+The base model in boosting is the starting weak learning model. The base model is often a high-bias and low-variance model because boosting mainly focuses on reducing bias (and maybe increasing the variance as boosting can cause overfitting). Boosting algorithms also use weighted dataset which is discussed below.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.1 Weighted dataset}}}}
+ \end{align*}
+Till now the loss function was giving equal treatment to all data points i.e 
+\begin{align*}
+    Loss = \frac{1}{M}\sum_{i=1}^{M} L_i(\hat{y_i},y_i)
+\end{align*}
+The key idea of having a weighted dataset is that the learning algorithm can give more focus on data points with higher weights. In this way, we can control which data points should the learning algorithm put focus on. This is used in boosting since we can increase the weights of misclassified data points so that the next weak learner focuses on it.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.2 Different type of boosting algorithm}}}}
+ \end{align*}
+There are mainly 5 types of boosting algorithms:
+\begin{enumerate}
+    \item AdaBoost (Adaptive Boosting)
+    \item GBM (Gradient Boosting Machine)
+    \item XGBM (Extreme Gradient Boosting Machine)
+    \item LightGBM
+    \item CatBoost
+\end{enumerate}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.3 AdaBoost}}}}
+ \end{align*}
+ An adaptative boosting (often called 'Adaboost'), we try to define our ensemble model as a weighted sum of L weak learners: 
+ \begin{align*}
+    H_T(X) = \sum_{t=1}^{T}\alpha_t h_t(x)
+ \end{align*}
+ $\alpha_t$ and $h_t$ is chosen such that 
+ \begin{align*}
+    \alpha_t,h_t = \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} loss(y^{(n)},H_{T-1}(x^{(n)}) + \alpha_t h_T(x^{(n)}))
+ \end{align*}
+ We need to solve the above optimization problem. Here in this example, we will consider an exponential loss function given by:
+ \begin{align*}
+    Loss(y,\hat{y}) = \exp(-y\hat{y})
+ \end{align*}
+ Let $\mathbb{L}(h(X^{(n)}) \neq y^{(n)}) = \frac{1}{2}(1 - h(X^{(n)}).y^{(n)})$. Using this we can simplify the optimization problem as follow:
+ \begin{align*}
+    \alpha_t,h_t &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}) + \alpha_t h_T(x))) \\
+    &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}))) \exp(-y^{(n)}\alpha_t h_T(x^{(n)}))
+ \end{align*}
+ Solving the optimization problem we get 
+ \begin{align*}
+    \alpha_t &= \frac{1}{2} \log \frac{1 - err_t}{err_t} \\
+    \text{Where, } err_t &= \frac{\sum_{n=1}^{N}w^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}} \\
+ \end{align*}
+ With that, we also find that $h_t$ minimizes the weighted 0/1-loss i.e.
+ \begin{align*}
+    h_t = \arg \min_{h} \sum_{i=0}^{N} w^{(t)}_i \mathbb{L}(h(X^{(i)}) \neq y^{(i)})
+ \end{align*}
+ \\
+The algorithm is given as follows:
+\begin{enumerate}
+    \item Input: Data $D$ with $N$ data points, weak classifier WeakLearn (a classification procedure that
+    returns a classifier $h$, e.g. best decision stump, from a set of classifiers H, e.g.
+    all possible decision stumps), number of iterations T
+    \item Output: Classifier $H(x)$
+    \item Initialize all weights ($w \in \mathbb{R}^N$) to $\frac{1}{N}$
+    \item For $t = 1\dots T$ do the following:
+        \begin{enumerate}
+            \item Train the classifier $h_t$ on the weighted dataset.
+            \item Compute weighted error as follows:
+                \begin{align*}
+                    err_t = \frac{\sum_{n=1}^{N}w^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}}
+                \end{align*}
+            \item Compute classifier coefficient as follows:
+                \begin{align*}
+                    \alpha_t = \frac{1}{2} \log \frac{1 - err_t}{err_t}
+                \end{align*}
+            \item Update data weights as follow 
+                \begin{align*}
+                    w^{(n)} \leftarrow w^{(n)} \exp(-\alpha_t y^{(n)}h_t(X^{(n)}))
+                \end{align*}
+            \item Normalize all weights
+        \end{enumerate}
+    \item Return $H(x) = sign(\sum_{t=1}^{T} \alpha_t h_t(x))$
+\end{enumerate}
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.4 GBM}}}}
+ \end{align*}
+ Just like AdaBoost, we try to define our ensemble model as a weighted sum of $L$ weak learners. The main difference with adaptative boosting is in the definition of the sequential optimization process. Indeed, gradient boosting casts the problem into a gradient descent one: at each iteration, we fit a weak learner to the opposite of the gradient of the current fitting error concerning the current ensemble model. To put this mathematical perspective, the ensemble can be written as:
+ \begin{align*}
+    H_T(x) = H_{T-1}(x) - \alpha_T \nabla{H_{T-1}} E(H_{T-1})(x)
+ \end{align*}
+ Where $E(.)$ is the fitting error. 
+ The coefficient $\alpha_t$ is computed following a one-dimensional optimization process (line-search to obtain the best step size $\alpha_t$). Moreover, Adaptative boosting tries to solve at each iteration exactly the “local” optimization problem (find the best weak learner and its coefficient to add to the strong model), gradient boosting uses instead a gradient descent approach and can more easily be adapted to a large number of loss functions. Thus, gradient boosting can be considered as a generalization of AdaBoost to arbitrary differentiable loss functions.
+
+ \begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.5 XGBM}}}}
+ \end{align*}
+ XGBoost is an enhanced version of the gradient boosting method. Firstly, it improves overfitting by using regularisation. Secondly, it improves the runtime speed by optimizing sorting using parallel running. Lastly, it uses the maximum depth of the decision tree as the parameter to prune the tree which reduces runtime significantly.
+ \begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.6 LightGBM}}}}
+ \end{align*}
+
+ As the name suggests, Light Gbm further improves the runtime of the program by making the computing workload ‘light’. However, it can still maintain the same or higher level of model performance compared to other algorithms. \\
+\\
+Light Gbm optimizes runtime speed and accuracy in mainly two ways:
+\begin{enumerate}
+    \item It adopts the histogram-based algorithm, splitting the continuous variables into different buckets(rather than sorting them individually). This improves the runtime a lot.
+    \item It uses the leaf-wise tree growth method instead of the level-wise tree growth method
+\end{enumerate}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.7 CatBoost}}}}
+ \end{align*}
+
+ CatBoost stands for Categorical Boosting. It has the great feature of automatically handling categorical variables without the need to convert them into numerics.
+
+CatBoost was developed most recently among the 5 boosting algorithms but very close to Light Gbm. It performs better when there are more categorical variables.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.8 Comparison of different boosting algorithms}}}}
+ \end{align*}
+ Points you can consider for choosing boosting algorithm
+\begin{enumerate}
+    \item AdaBoost:
+        \begin{enumerate}
+            \item Focuses on misclassified cases.
+            \item It forms the foundation of boosting algorithm.
+        \end{enumerate}
+    \item GBM:
+        \begin{enumerate}
+            \item You can use any type of loss function.
+            \item Gradient descent is used to minimize the loss function.
+        \end{enumerate}
+    \item XGBoost
+        \begin{enumerate}
+            \item Improves on overfitting 
+            \item Optimize running time by tree parallelism and tree pruning
+        \end{enumerate}
+    \item LightGBM
+        \begin{enumerate}
+            \item further improves the speed of leaf-wise growth
+            \item Allow tuning of more parameter
+        \end{enumerate}
+    \item CatBoost:
+        \begin{enumerate}
+            \item Handles categorial features automatically.
+            \item Works efficiently with categorial type data.
+        \end{enumerate}
+\end{enumerate}
+
+\section{\text{{\large{Pros and cons of boosting}}}}
+\begin{enumerate}
+    \item Pros of boosting and cons of bagging:
+        \begin{enumerate}
+            \item boosting reduces the bias whereas bagging doesn't decrease bias.
+            \item In bagging we need to make sure predictions made by models are independent which is sometimes difficult in practice. Whereas, boosting doesn't need to worry about this.
+        \end{enumerate}
+    \item Pros of bagging and cons of boosting:
+        \begin{enumerate}
+            \item Since boosting is a sequential algorithm, it does not support parallel programming. whereas bagging can support parallel programming. 
+            \item Bagging decreases the variance whereas boosting can increase variance due to overfitting.
+        \end{enumerate}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{\text{{\large{Questions}}}}
+\textbf{Subjective : \\}
+\textbf{1) Can you justify briefly that the optimal prediction made for an input x is $y_* = E[y|x]$?\\
+2) Can you prove $E[(\hat{y} - y)^2|x)] = (E[t|x] - \hat{y})^2 + Var[t|x]$?\\
+3) Using the equation proved in question 2 can you answer question 1 again?\\
+4) Can you prove $E[(\hat{y} - y)^2)] = (y_* - \hat{y})^2 + Var(\hat{y}) + Var(t)$?\\
+5) Many machine libraries make use of parallel programming. Will libraries be more efficient in boosting algorithms or bagging algorithms? Justify\\
+6) In Adaboost we constructed a optimization problem, can you show that $h_t(x)$ is the minimizer of the weighted 0/1-loss?\\
+7) In bagging if the predictions of models are dependent then what will be the variance in terms of the Correlation factor ($\rho$) and standard deviation of one prediction($\sigma$)?}\\
+ \\
+\textbf{Objective :}\\
+\textbf{1) which of the following will be a good choice for the base model in boosting?}\\
+\textbf{a)} SVM
+\indent \textbf{b)} Neural network with 3 hidden layer
+\indent \textbf{c)} decision stump 
+\indent \textbf{d)} decision tree
+
+\section{\text{{\large{Implementing AdaBoost}}}}
+The full working code can be found on this \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Linear%20Regression/Linear%20Regression.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using numpy. We have used sklearn to import only the decision tree that can find the best split.
+\lstinputlisting[language=Python, label=gcd]{./code/Adaboost.py}
+\end{document}
