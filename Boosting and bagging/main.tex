@@ -3,6 +3,7 @@
 \usepackage{pdfpages}
 \definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
 \usepackage{xcolor}
+\usepackage{algorithm2e}
 \usepackage{biblatex}
 % \usepackage[light,math]{kurier}
 % \usepackage[T1]{fontenc}
@@ -32,7 +33,7 @@
  1. {What is Bootstrapping?}\\
  2. {What is Bagging}\\
  3. {How Bagging Works?}\\
-\indent \    \textcolor{blue}{3.1 Bais and variance}\\
+\indent \    \textcolor{blue}{3.1 Bias and variance}\\
 \indent \    \textcolor{blue}{3.2 How Bagging reduces variance?}\\
 \indent \    \textcolor{blue}{3.3 Effect of Correlation}\\
 \indent \    \textcolor{blue}{3.4 Random Forests}\\
@@ -70,7 +71,7 @@ The algorithm is explained in the following steps:
 \section{\text{{\large{How Bagging works?}}}}
 Now that we know the algorithms, we will try to understand how does it work. But for that, we need some knowledge of bias and variance.
 \begin{align*}
-   \textcolor{blue}{ \text{{\textbf{3.1 Bais and variance}}}}
+   \textcolor{blue}{ \text{{\textbf{3.1 Bias and variance}}}}
 \end{align*}
 Let $\hat{y}$ be the predicted target value of a random input $X$ and $y$ be the actual target value. $y_*$ be the best-predicted target value of input $X$ that can be made. We can show that,
 \begin{align*}
@@ -79,7 +80,7 @@ Let $\hat{y}$ be the predicted target value of a random input $X$ and $y$ be the
 We can interpret the following terms in the above equation:
 \begin{enumerate}
     \item $E[(\hat{y} - y)^2]$ is the expected loss of the predicted value. We need to minimize this.
-    \item $(y_* - E[\hat{y}])^2$ is called the bais. It indicates how close is the predicted value to the best prediction that can be achieved. Higher bias corresponds to underfitting.
+    \item $(y_* - E[\hat{y}])^2$ is called the bias. It indicates how close is the predicted value to the best prediction that can be achieved. Higher bias corresponds to underfitting.
     \item $Var[\hat{y}]$ is called the variance. It indicates the amount of variability in the predictions (a higher value corresponds to overfitting).
     \item $Var[y]$ is called the Bayes error and is the inherent unpredictability of the targets. We cannon reduce this.
 \end{enumerate}
@@ -106,7 +107,7 @@ The above two points are portrayed in the following image:
 In the previous section, we saw different terms in the expected loss function. Now we will try to understand how each term is affected in bagging.
 \begin{enumerate}
     \item Bayes error: Unchanged, since we have no control over it.
-    \item Bais: Unchanged
+    \item Bias: Unchanged
         \begin{align*}
             E[\hat{y}] &= E[\frac{1}{M}\sum_{i=1}^{M}\hat{y}_i] \\
                 &= \frac{1}{M}\sum_{i=1}^ME[\hat{y}_i] \\
@@ -226,12 +227,30 @@ The algorithm is given as follows:
 \begin{align*}
     \textcolor{blue}{ \text{{\textbf{4.4 GBM}}}}
  \end{align*}
- Just like AdaBoost, we try to define our ensemble model as a weighted sum of $L$ weak learners. The main difference with adaptative boosting is in the definition of the sequential optimization process. Indeed, gradient boosting casts the problem into a gradient descent one: at each iteration, we fit a weak learner to the opposite of the gradient of the current fitting error concerning the current ensemble model. To put this mathematical perspective, the ensemble can be written as:
+ Just like AdaBoost, we try to define our ensemble model as a weighted sum of $L$ weak learners. Compared to AdaBoost, gradient boosting does not penalize missed-classified cases but uses a loss function instead. Similar to the gradient descent algorithm, gradient boosting casts the problem into a gradient descent one i.e. at each iteration, we fit a weak learner to the opposite of the gradient of the current fitting error concerning the current ensemble model. To put this mathematical perspective, the ensemble can be written as:
  \begin{align*}
-    H_T(x) = H_{T-1}(x) - \alpha_T \nabla{H_{T-1}} E(H_{T-1})(x)
+    H_T(x) = H_{T-1}(x) - \alpha \nabla_{H_{T-1}} E(H_{T-1})(x)
  \end{align*}
- Where $E(.)$ is the fitting error. 
- The coefficient $\alpha_t$ is computed following a one-dimensional optimization process (line-search to obtain the best step size $\alpha_t$). Moreover, Adaptative boosting tries to solve at each iteration exactly the “local” optimization problem (find the best weak learner and its coefficient to add to the strong model), gradient boosting uses instead a gradient descent approach and can more easily be adapted to a large number of loss functions. Thus, gradient boosting can be considered as a generalization of AdaBoost to arbitrary differentiable loss functions.
+ Where $E(.)$ is the fitting error which can be written as:
+ \begin{align*}
+    E(H_{T})(x) = \frac{1}{N} \sum_{n=1}^{N} loss(y^{(n)},H_{T}(x^{(i)}))
+ \end{align*}
+ The coefficient $\alpha$ is the learning rate that can be computed following a one-dimensional optimization process (line-search to obtain the best step size $\alpha$). Basically, unlike Adaboost there is no analytic expression of $\alpha$. Because of this, the gradient descent approach can more easily be adapted to a large number of loss functions. Thus, gradient boosting can be considered as a generalization of AdaBoost to arbitrary differentiable loss functions. \\
+\\
+ The algorithm for the regression problem with MSE as a loss function is given below:
+ \begin{algorithm*}
+    \caption{Gradient boosting}
+    \KwIn{$\alpha$, $T$, Data D with N training points, family of weak learner}
+    Train a weak learner $h_1$ on original data \\
+    $\forall i\in(1 \dots N)$ $r_i \gets -\nabla_{h_1(x_i)}loss(y_i,h_1(x_i))$ \\
+    $\implies \forall i\in{1 \dots N}$ $r_i \gets y_i - h_1(x_i)$ \\
+    \For{t = 2 to T}{
+        Train data $(x_1,r_1) \dots (x_N,r_N)$ on weak learner $h_t$ \\
+        $\forall i \in (1 \dots N)$ update $r_i$ as follows\\
+        $r_i \gets r_i - \alpha h_t(x_i)$ \\
+    }
+    \KwOut{Final model $H_T(x) = h_1(x) + \alpha \sum_{t=2}^{T} h_t(x)$}
+ \end{algorithm*}
 
  \begin{align*}
     \textcolor{blue}{ \text{{\textbf{4.5 XGBM}}}}
@@ -241,7 +260,7 @@ The algorithm is given as follows:
     \textcolor{blue}{ \text{{\textbf{4.6 LightGBM}}}}
  \end{align*}
 
- As the name suggests, Light Gbm further improves the runtime of the program by making the computing workload ‘light’. However, it can still maintain the same or higher level of model performance compared to other algorithms. \\
+ As the name suggests, Light Gbm further improves the runtime of the program by making the computing workload 'light'. However, it can still maintain the same or higher level of model performance compared to other algorithms. \\
 \\
 Light Gbm optimizes runtime speed and accuracy in mainly two ways:
 \begin{enumerate}
@@ -325,5 +344,8 @@ CatBoost was developed most recently among the 5 boosting algorithms but very cl
 
 \section{\text{{\large{Implementing AdaBoost}}}}
 The full working code can be found on this \href{https://github.com/Anshul-Sangrame/Handouts-2022-2023/blob/main/Boosting%20and%20bagging/code/main.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using numpy. We have used sklearn to import only the decision tree that can find the best split.
-\lstinputlisting[language=Python, label=gcd]{./code/Adaboost.py}
+\lstinputlisting[language=Python, label=gcd]{./code/Adaboost/Adaboost.py}
+\section{\text{{\large{Implementing Gradient Boosting}}}}
+The full working code can be found on this \href{https://github.com/Anshul-Sangrame/Handouts-2022-2023/blob/main/Boosting%20and%20bagging/code/main.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using numpy. We have used sklearn to import only the decision tree that can find the best split.
+\lstinputlisting[language=Python, label=gcd]{./code/Gradient boosting/GBM.py}
 \end{document}
