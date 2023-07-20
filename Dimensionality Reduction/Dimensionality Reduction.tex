@@ -1,0 +1,617 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{listings}
+
+
+
+
+
+%Shortcut for strings "Code" and "List of Code"
+\renewcommand{\lstlistingname}{Code}
+\renewcommand{\lstlistlistingname}{List of Code}
+
+%This is the template for code styling, named as "mystyle"
+
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{enumerate}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{amsmath}
+\usepackage{hyperref}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backgroundcolour},
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{green!60!black},
+	keywordstyle=\color{magenta},
+	stringstyle=\color{blue!50!red},
+	showstringspaces=false, 
+	captionpos=b, %Position of caption top/bottom
+	%numbers=left,	%This command adds line numbers to the code
+	%numberstyle=\footnotesize\color{gray}, %This command sets the colour of the line numbers
+	%numbersep=10pt, %This command determines the separation of the line numbers from the main margin
+	%stepnumber=2,
+	tabsize=2,
+	frame=single, %setting to select the frame for code ... options available {L,single,shadowbox}
+	%framerule=1pt, %selecting the width of the frame
+	%rulecolor=\color{red}, %selecting the colour of the frame
+	breaklines=true,
+	inputpath=code
+}
+
+
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Dimensionality Reduction}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {T-SNE}\\
+ \indent \    \textcolor{blue}{1.1 Mathematical Formulation}\\
+  \indent \    \textcolor{blue}{1.2 Questions}\\
+ 2. {PCA}\\
+\indent \    \textcolor{blue}{2.1 Mathematical Formulation}\\
+  \indent \    \textcolor{blue}{2.2 Questions}\\
+ 3. {DBSCAN}\\
+ \indent \    \textcolor{blue}{3.1 Algorithm}\\
+  \indent \    \textcolor{blue}{3.2 Questions}\\
+ 4. {SVD}\\
+ \indent \    \textcolor{blue}{4.1 Mathematical Formulation}\\
+  \indent \    \textcolor{blue}{4.2 Questions}\\
+ 5. {Examples}\\
+ \indent \    \textcolor{blue}{5.1 SVD}\\
+  \indent \    \textcolor{blue}{5.2 Data Visualisation}\\
+}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Srinith}}
+\end{center}
+
+\newpage
+Dimensionality reduction is a set of techniques used to reduce the number of features or variables in a dataset while preserving important information. It is commonly employed in machine learning, data analysis, and data visualization tasks. Here are four popular dimensionality reduction techniques:
+
+\section{\text{\textcolor{black}{\large{T-SNE}}}}
+t-Distributed Stochastic Neighbor Embedding (t-SNE) is an unsupervised, non-linear technique primarily used for data exploration and visualizing high-dimensional data.t-SNE gives you a feel or intuition of how the data is arranged in a high-dimensional space.It is usually only used for visualization of high-dimensional data and not for clustering.
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{1.1 Mathematical Formulation}}}}
+\end{align*}
+Let our data set $\mathcal{D}$ contain the data points $\{x_1,\cdots,x_m\}$. It starts by converting the high dimensional Euclidean distance between the data points into conditional probabilities that represents similarities.The t-SNE algorithm calculates a similarity measure between pairs of instances in the high dimensional space and in the low dimensional space.Then it optimizes the similarity values using the cost function.
+
+The similarity of high-dimensional datapoint $x_j$ to datapoint $x_i$ is the conditional probability, $p_{j|i}$, that xi would pick $x_j$ as its neighbor if neighbors were picked in proportion to their probability density under a Gaussian centered at xi.As we are only interested in pairwise similarity hence $p_{i\mid i}$ is consider to be $0$. Mathematically,
+\begin{align*}
+p_{j\mid i} &= {\displaystyle\exp\bigg({-\|x_i-x_j\|^2\over 2 \sigma_i^2}\bigg) \over \displaystyle\sum_{k\ne i}\exp\bigg({-\|x_i-x_k\|^2\over 2 \sigma_i^2}\bigg) }
+\end{align*}
+
+$\sigma_i$ is the variance of the Gaussian Kernel which is an user defined value. It is calculated based on desired perplexity $(\mathcal{P})$ . Perplexity is defined as,
+\begin{align*}
+    \mathcal{P} &= 2^{\mathcal{H}}\\
+    \mathcal{H} &= -\sum_{j\ne i}p_{j\mid i}\log_2p_{j\mid i}
+\end{align*}
+
+It is a user given value which ranges typically between 5 and 50.
+
+The similarity of $x_j$ with respect to $x_i$ is not necessarily equal to that of $x_i$ with respect to $x_j$. Thus, we choose the similarity of $x_i$ and $x_j$ as,
+\begin{align*}
+    p_{ij} = {p_{j\mid i}+p_{i\mid j}\over 2m}
+\end{align*}
+to be the average of the two.
+
+For the low-dimensional counterparts $y_i$ and $y_j$ of the high-dimensional datapoints $x_i$ and $x_j$ , it is possible to compute a similar conditional probability, which we denote by $q{j|i}$ . In T-SNE it is taken to be,
+\begin{align*}
+q_{ij} &= {(1 + \|y_i-y_j\|^2)^{-1}\over \displaystyle\sum_{k\ne j}(1+\|y_k-y_l\|^2)^{-1}} = {w_{ij}\over Z}
+\end{align*}
+
+We first construct a similarity matrix containing the pairwise similarity scores for each pair of points in the original dataset say of size (mxn) , where m is the number of points and n is the number of input dimensions. We then randomly project the input data points into d-dimensional space and construct a similarity matrix for this as well of size (mxd). For each point in this lower-dimensional space, we move it such that the row corresponding to it in the new similarity matrix becomes like the corresponding row in
+the original similarity matrix. Finally, we are left with the appropriate clusters that visualize the original
+dataset.
+
+This is achieved by minimizing the cost function, C, which is defined as the sum of Kullback-Leibler divergences over all datapoints using gradient descent.
+\begin{align*}
+    C = \sum_i\sum_j{p_{j|i} log\dfrac{p_{j|i}}{q_{j|i}}}
+\end{align*}
+The minimization of the cost function is performed using a gradient descent method.
+The gradient has a surprisingly simple form
+\begin{align*}
+    \dfrac{\delta C}{\delta y_i} = 4 \sum_j{(p_{ij} - q_{ij})(y_i - y_j)(1+ ||y_i - y_j||^2)^{-1}}
+\end{align*}
+The gradient update is given by ,
+\begin{align*}
+    \gamma^{t} = \gamma^{t-1} + \eta \dfrac{\delta C}{\delta y_i} + \alpha(t)(\gamma^{t-1} - \gamma^{t-2})
+\end{align*}
+where $\gamma^t$ indicates the solution at iteration t, $\eta$ indicates the learning rate, and $\alpha(t)$ represents the momentum at iteration t.
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{1.2 Questions}}}}
+\end{align*}
+
+\begin{enumerate}
+    \item What is the major difference between SNE and t-SNE algorithms?
+    \item  What is the value of $p_{i|i}$ taken?
+    \item Why is t-kernel used over Gaussian kernel in the low dimension?
+    \item Why is the disadvantage of using t-SNE?
+    \item What is  Kullback-Leibler divergence?\\[10pt]
+\end{enumerate}
+
+
+\section{\text{\textcolor{black}{\large{PCA}}}}
+Principal Component Analysis, or PCA, is a dimensionality-reduction method that is often used to reduce the dimensionality of large data sets, by transforming a large set of variables into a smaller one that still contains most of the information in the large set. It is
+often used for exploratory data analysis.
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{2.1 Mathematical Formulation}}}}
+\end{align*}
+Suppose we are given m samples $x_1, x_2, . . . , x_m$ where $x_i$ belongs to $R^n$. And we want to project the data to k dimensional data , where k$<$n. Therefore we have to project data onto k vectors say $u_1,u_2, . . . , u_k$ such that it represents maximum variance of data.
+
+Prior to running PCA, we first pre-process the data to zero out the mean of the data and normalize the variance of data.
+\begin{align*}
+    \mu &= \sum^m_{i=1}{x^{(i)}}  \\
+    \sigma^2_j &= \dfrac{1}{m} \sum_i x^{(i)}_j \\
+    x^{(i)}_j &= \dfrac{x^{(i)}_j - \mu}{\sigma_j} \\
+\end{align*}
+
+Principal components are new variables that are constructed as linear combinations or mixtures of the initial variables. These combinations are done in such a way that the new variables (i.e., principal components) are uncorrelated i.e, there is no linear relationship between them .i.e , The n principal components are a sequence of n mutually perpendicular lines passing through centroid of data , which we pre-processed to 0.
+
+
+As there are as many principal components as there are variables in the data, principal components are constructed in such a manner that the first principal component accounts for the largest possible variance in the data set. i.e, we consider the best-fit line for the data as first principal component (PC1). The line should be such that the we minimise the sum of square of distances from line which is same as maximising sum of squares of projection distances on the line .
+
+Now , the second principal component has to be calculated which should be uncorrelated i.e, should be perpendicular to the first principal component and  that it accounts for the next highest variance and soon.
+
+Considering any vector u from \{$u_1 , u_2 ,....$\} , considering st.$||u||$ = 1 , we have to find u  such that it maximises the following variance ,
+\begin{align*}
+    &\max \dfrac{1}{m} \sum_i (x^{(i)^T} u)^2 \\
+    &\max \dfrac{1}{m} \sum_i (u^T x^{(i)}  x^{(i)^T} u) \\
+    &\max u^T \left(\dfrac{1}{m} \sum_i ( x^{(i)}  x^{(i)^T} ) \right)u \\
+\end{align*}
+
+here we can see that as we that the covariance matrix of the data is,
+\begin{align*}
+    S = \dfrac{1}{m} \sum_i ( x^{(i)}  x^{(i)^T} ) 
+\end{align*}
+
+we can rewrite it as,
+\begin{align*}
+    &\max u^T S u \\
+\end{align*}
+
+We can use the Lagrangian multiplier and maximise it ,
+\begin{align*}
+    \mathcal{L}(u,\lambda) &= u^TSu+\lambda(1-u^Tu) \\
+    {\partial \mathcal{L} \over \partial u} &= 2u^TS-2\lambda u^T = 0 \\
+    S u &= \lambda u \\
+    {\partial \mathcal{L} \over \partial \lambda} &= 1-u^Tu\\
+    u^Tu &=1 \\
+\end{align*}
+which implies that u is a eigen vector of the covariance matrix S , and $\lambda$ is the eigen value which is equal to variance since,
+\begin{align*}
+    V &= u^T S u  \\
+    V &= \lambda u^Tu = \lambda
+\end{align*}
+
+Therefore , the vectors $u_1,u_2,....,u_k$ are the top k eigen vectors of the covariance matrix S , corresponding to highest k eigen values of matrix S.
+
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{2.2 Questions}}}}
+\end{align*}
+
+\begin{enumerate}
+    \item What’s the difference between PCA and t-SNE algorithms?
+    \item  Why do we do standardisation in PCA ?
+    \item Can we use PCA for feature selection?
+    \item Explain the curse of dimensionality.
+    \item What are the results of PCA when used on noisy data?\\[10pt]
+\end{enumerate}
+
+
+
+
+
+\section{\text{{\large{DBSCAN}}}}
+The DBSCAN(Density-based spatial clustering of applications with noise) algorithm is based on this intuitive notion of “clusters” and “noise”.The key idea is that for each point of a cluster, the neighborhood of a given radius has to contain at least a minimum number of points. DBSCAN is used because , the real-life data may contain noise or the clusters can be of arbitrary shape ,it is especially useful when the training
+data consists of nested clusters, where algorithms like k-means will not work because the centroids of
+nested clusters can be very close to each other.
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{2.1 Algorithm}}}}
+\end{align*}
+
+DBSCAN's clustering principle is congruent with how people typically think of clusters, which is why it performs so well. A human would base their decision to locate clusters given an arbitrary set of data points on how packed the points are in a specific area. DBSCAN thus imitates the human brain when looking for clusters.
+
+DBSCAN algorithm requires two parameters:
+
+\begin{itemize}
+    \item eps : It defines the neighborhood around a data point i.e. if the distance between two points is lower or equal to ‘eps’ then they are considered neighbors.
+    \item MinPts : Minimum number of neighbors (data points) within eps radius.As a general rule, MinPts $\ge$ D +1 , where D is the number of dimensions.
+\end{itemize}
+
+Based on the eps , the datapoints are also classified into 3 types ,
+\begin{itemize}
+    \item Core Point : A point is a core point if it has more than MinPts points within eps.
+    \item Border Point : A point which has fewer than MinPts within eps but it is in the neighborhood of a core point.
+    \item Noise or outlier : A point which is not a core point or border point
+\end{itemize}
+
+The algorithm works as follows,
+\begin{enumerate}
+    \item For all the points in the database , it classifies them into core or non-core points.
+    \item Then it randomly picks a core point and assign it to the first cluster.
+    \item Next , the core points closer to the first cluster are added to it .
+    \item Then , the core points closer to the growing first cluster are added to it.
+    \item Finally , the non-core points closer to the points of the final cluster are added to it.
+\end{enumerate}
+
+After forming of all the clusters , the left points are called outliners , or noise points.
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{3.2 Questions}}}}
+\end{align*}
+
+\begin{enumerate}
+    \item How to get the optimum parameters for DBSCAN ?
+    \item  What are core points?
+    \item Is the number of clustered formed given as a parameter to DBSCAN?
+    \item What is the worst case time complexity of DBSCAN algorithm?
+    \item What points would you keep in mind while determining the MinPts parameter?
+\\[10pt]
+\end{enumerate}
+
+
+\section{\text{{\large{SVD}}}}
+Singular value decomposition (SVD) is a matrix factorization technique. SVD breaks down a given matrix into three components: a unitary matrix, a diagonal matrix, and another unitary matrix. 
+
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{4.1 Mathematical Formulation}}}}
+\end{align*}
+Let A belongs to $R^{m × n}$ be a real matrix.The Singular value decomposition theorem, states that there always exists a unique decomposition of
+A of the form
+\begin{align*}
+    A = USV^T
+\end{align*}
+where U belongs to $R^{m \times r}$ is the left singular matrix, V belongs to $R^{n\times r}$ is the right singular matrix and S belongs to $R^{r\times r}$ is a diagonal matrix containing the singular values along its diagonal. Here r is the rank of A.
+
+Let us look at its proof. 
+\begin{itemize}
+    \item Firstly ,We know that is a matrix is symmetric , that is $B = B^T$ then we can say that the matrix B is diagonalizable with a unitary matrix and it has real eigen values. Which is the spectral theorem
+\end{itemize}
+
+Now, let us consider $A^TA$ ,which is symmetric matrix ,as
+\begin{align*}
+    (A^TA)^T = A^T(A^T)^T = A^TA
+\end{align*}
+So, from the spectral theorem we can say that,
+\begin{align*}
+    (A^TA)V = DV 
+\end{align*}
+where D is a diagonal matrix containing the eigen values in dereasing order in the diagonal and V is unitary.So,
+\begin{align*}
+    V^T = V^-1
+\end{align*}
+
+\begin{itemize}
+    \item We can prove that the eigen values of $A^TA$ are always non-negative.
+\end{itemize}
+
+Consider ,
+\begin{align*}
+    A^TA x = \lambda x \\
+    x^T A^TA x = \lambda x^T x \\
+    (Ax)^T(Ax) = \lambda x^T x\\
+\end{align*}
+So , 
+\begin{align*}
+    \lambda = \dfrac{||Ax||^2}{||x||^2} \ge 0
+\end{align*}
+
+Now , continuing,
+let $v_i$ denote the ith coloumn of V ,and $w_i = Av_i$.
+Consider the inner product of any two $w_i,w_j$ which would imply,
+\begin{align*}
+    <w_i , w_j> &= w^T_i w_j \\
+                &= v^T_i A^T Av_j \\
+                &= (V^TA^TAV)_{ij} \\
+                &= D_{ij} 
+\end{align*}
+that is inner product is 0 is i$\neq$ j implying they are orthogonal to each other , else the value is $D_{ii}$.
+So , we can say that $w_i$'s form an orthogonal set .
+We can also say something about its length,
+\begin{align*}
+    ||w_i||^2 &= D_{ii} \\
+    ||w_i|| &= \sqrt{D_{ii}}
+\end{align*}
+Since we have seen that eigen values are positive for $A^T A$ , the length of the orthogonal vectors will be valid and real.
+
+So, we considered AV = W , where we found out W to be a matrix with orthogonal columns whose lengths we found out (not always one ,i,e not a unitary matrix) ,so we can write W as,
+\begin{align*}
+    W = US 
+\end{align*}
+where u is a unitary matrix and $S_{ii} = \sigma_i = \sqrt{D_{ii}}$ ,which scales the columns of the unitary matrix U.
+
+Which leaves us with,
+\begin{align*}
+    AV &= US \\
+    A &= USV^{-1} \\
+    A &= USV^T
+\end{align*}
+
+Moreover , 
+\begin{align*}
+    A^TA &= (USV^T)^T (USV^T) \\
+         &= (VS^TU^T)(USV^T) \\
+         &= VS^2V^T \\
+    A^TAV &= VS^2 
+\end{align*}
+Similarly,
+\begin{align*}
+    AA^TU &= US^2
+\end{align*}
+Thus , the columns of U are the eigenvectors of $AA^T$ and the columns of V are the eigenvectors of $A^TA$. 
+
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{4.2 Questions}}}}
+\end{align*}
+
+\begin{enumerate}
+    \item Is SVD possible for only square matrices or any size of matrices?
+    \item If dimensions of A are $a \times b$ and its SVD is $USV^T$ then dimensions of U and V are?
+    \item Is the no. of non-zero elements in S is equal to rank of matrix A.
+    \item How can SVD we used in Machine learning?
+    \item Let A = $\begin{bmatrix}
+                    1 & 2 & 3\\
+                    4 & 5 & 6
+                \end{bmatrix}$ , find $AA^T , A^TA $, eigen values and vectors of the above matrices and thus write the singular valued decomposition of A.
+\end{enumerate}
+
+\section{\text{{\large{Examples}}}}
+
+% \begin{align*}
+%    \textcolor{blue}{ \text{{\textbf{5.1 T-SNE}}}}
+% \end{align*}
+ % \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/SVM/SVM.ipynb}{\textcolor{blue}{\underline{SVM classifier}}} code snippets 
+
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{SVD}}}}
+\end{align*}
+
+Let us decompose the following matrix ,
+A = $\begin{bmatrix}
+                    3 & 2 & 2\\
+                    2 & 3 & -2
+                \end{bmatrix}$
+
+
+First we will have to find $AA^T$ and $A^TA$ and their eigen values, it is important to note that both the matrices have same non-zero eigen values which we will see,
+\begin{align*}
+    A^T &= \begin{bmatrix}
+                    3 & 2 \\
+                    2 & 3 \\
+                    -2 & -2
+                \end{bmatrix} \\
+    AA^T &= \begin{bmatrix}
+                    3 & 2 & 2\\
+                    2 & 3 & -2
+                \end{bmatrix} 
+            \begin{bmatrix}
+                3 & 2 \\
+                2 & 3 \\
+                -2 & -2
+            \end{bmatrix} \\
+    AA^T &= \begin{bmatrix}
+                    17 & 8 \\
+                    8 & 17
+                \end{bmatrix} \\
+    A^TA &= \begin{bmatrix}
+                    13 & 12 & 2 \\
+                    12 & 13 & -2 \\
+                    2 & -2 & 8 \\
+                \end{bmatrix}
+\end{align*}
+From the matrix we get the eigen values of $AA^T$ to be 25,9.
+And the eigen values of $A^TA$ are 25,9,0.
+
+
+Now we will have to find eigen vectors corresponding to eigen values,
+    \begin{align*}
+        \begin{bmatrix}
+                    17-\lambda & 8 \\
+                    8 & 17-\lambda
+                \end{bmatrix}
+        \begin{bmatrix}
+                    v_1 \\
+                    v_2
+                \end{bmatrix} &= 0 \\
+        (17-\lambda)v_1 + 8v_2 &= 0 \\
+       \dfrac{v_1}{v_2} &= \dfrac{8}{\lambda - 17} 
+    \end{align*}
+    So ,the normalised eigen vector of $AA^T$ are,
+    \begin{align*}
+        v_{\lambda = 25} &= \dfrac{1}{\sqrt{2}} 
+        \begin{bmatrix}
+                    1 \\
+                    1
+                \end{bmatrix}  \\
+        v_{\lambda = 9} &= \dfrac{1}{\sqrt{2}} 
+        \begin{bmatrix}
+                    1 \\
+                    -1
+                \end{bmatrix}  
+    \end{align*}
+    and similarly the normalised eigen vectors for non-zero eigen values of $A^TA$ are,
+    \begin{align*}
+        v_{\lambda = 25} &= \dfrac{1}{\sqrt{2}} 
+        \begin{bmatrix}
+                    1 \\
+                    1 \\
+                    0
+                \end{bmatrix}  \\
+        v_{\lambda = 9} &= \dfrac{1}{\sqrt{18}} 
+        \begin{bmatrix}
+                    1 \\
+                    -1 \\
+                    4
+                \end{bmatrix}  
+    \end{align*}
+    Now, we will have to find the singular values of A which are the square roots of eigen values,
+    \begin{align*}
+        \sigma_1 &= 5 \\
+        \sigma_2 &= 3
+    \end{align*}
+    Now , we can write the U,V,S matrices which form the decomposition.
+    \begin{align*}
+        U &= \begin{bmatrix}
+                    \dfrac{1}{\sqrt{2}} & \dfrac{1}{\sqrt{2}} \\
+                    \dfrac{1}{\sqrt{2}} & -\dfrac{1}{\sqrt{2}} 
+                \end{bmatrix} \\
+        V &= \begin{bmatrix}
+                    \dfrac{1}{\sqrt{2}} & \dfrac{1}{\sqrt{18}} \\
+                    \dfrac{1}{\sqrt{2}} & -\dfrac{1}{\sqrt{18}} \\
+                    0 & \dfrac{4}{\sqrt{18}}
+                \end{bmatrix} \\
+        S &= \begin{bmatrix}
+                5 & 0 \\
+                0 & 3 \\
+                \end{bmatrix} 
+    \end{align*}
+    Finally , the decomposition is,
+    \begin{align*}
+        \begin{bmatrix}
+                    3 & 2 & 2\\
+                    2 & 3 & -2
+                \end{bmatrix} &= 
+    \begin{bmatrix}
+                    \dfrac{1}{\sqrt{2}} & \dfrac{1}{\sqrt{2}} \\
+                    \dfrac{1}{\sqrt{2}} & -\dfrac{1}{\sqrt{2}} 
+                \end{bmatrix}
+    \begin{bmatrix}
+                5 & 0 \\
+                0 & 3 \\
+                \end{bmatrix} 
+    \begin{bmatrix}
+                    \dfrac{1}{\sqrt{2}} & \dfrac{1}{\sqrt{18}} \\
+                    \dfrac{1}{\sqrt{2}} & -\dfrac{1}{\sqrt{18}} \\
+                    0 & \dfrac{4}{\sqrt{18}}
+                \end{bmatrix}^T
+                    \end{align*}
+
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{Data Visualisation}}}}
+\end{align*}
+
+\begin{lstlisting}[language=python, style = mystyle]
+    import numpy as np
+    from sklearn import datasets
+    from sklearn.manifold import TSNE
+    import matplotlib.pyplot as plt
+
+    # Load Iris dataset
+    iris = datasets.load_iris()
+    data = iris.data
+    target = iris.target
+    
+    # Plot the original data
+    plt.scatter(data[:, 0], data[:, 1], c=target)
+    plt.title("Original Iris Dataset")
+    plt.xlabel("Sepal Length")
+    plt.ylabel("Sepal Width")
+    plt.colorbar()
+    plt.show()
+    
+    # Perform T-SNE embedding
+    tsne = TSNE(n_components=2, random_state=42)
+    embedded_data_tsne = tsne.fit_transform(data)
+
+    # Perform PCA
+    pca = PCA(n_components=2)
+    embedded_data_pca = pca.fit_transform(data)
+
+    # Perform DBSCAN clustering
+    dbscan = DBSCAN(eps=0.5, min_samples=5)
+    clusters = dbscan.fit_predict(data)
+
+    # Plot the embedded data for TSNE
+    plt.scatter(embedded_data_tsne[:, 0], embedded_data_tsne[:, 1], c=target)
+    plt.title("T-SNE Visualization of Iris Dataset")
+    plt.colorbar()
+    plt.show()
+
+    
+    # Plot the embedded data for PCA
+    plt.scatter(embedded_data_pca[:, 0], embedded_data_pca[:, 1], c=target)
+    plt.title("PCA Visualization of Iris Dataset")
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    plt.colorbar()
+    plt.show()
+
+    # Get unique cluster labels for DBSCAN
+    unique_labels = np.unique(clusters)
+    
+    # Plot the clustered data
+    for label in unique_labels:
+        if label == -1:
+            # Plot points labeled as noise in black
+            plt.scatter(data[clusters == label, 0], data[clusters == label, 1], color='black', label='Noise')
+        else:
+            # Plot points for each cluster
+            plt.scatter(data[clusters == label, 0], data[clusters == label, 1], label=f'Cluster {label}')
+    
+    plt.title("DBSCAN Clustering of Iris Dataset")
+    plt.xlabel("Sepal Length")
+    plt.ylabel("Sepal Width")
+    plt.legend()
+    plt.show()
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{tsneb.png}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{tsnea.png}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{pca.png}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics{dbscan.png}
+\end{figure}
+
+\end{document}
+
