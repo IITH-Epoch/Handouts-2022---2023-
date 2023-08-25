@@ -1,0 +1,422 @@
+\documentclass{homework}
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{algorithm2e}
+\usepackage{biblatex}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backgroundcolour},
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{green!60!black},
+	keywordstyle=\color{magenta},
+	stringstyle=\color{blue!50!red},
+	showstringspaces=false, 
+	captionpos=b, %Position of caption top/bottom
+	%numbers=left,	%This command adds line numbers to the code
+	%numberstyle=\footnotesize\color{gray}, %This command sets the colour of the line numbers
+	%numbersep=10pt, %This command determines the separation of the line numbers from the main margin
+	%stepnumber=2,
+	tabsize=2,
+	frame=single, %setting to select the frame for code ... options available {L,single,shadowbox}
+	%framerule=1pt, %selecting the width of the frame
+	%rulecolor=\color{red}, %selecting the colour of the frame
+	breaklines=true,
+	inputpath=code
+}
+
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption*{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Bagging and Boosting techniques}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {What is Bootstrapping?}\\
+ 2. {What is Bagging}\\
+ 3. {How Bagging Works?}\\
+\indent \    \textcolor{blue}{3.1 Bias and variance}\\
+\indent \    \textcolor{blue}{3.2 How Bagging reduces variance?}\\
+\indent \    \textcolor{blue}{3.3 Effect of Correlation}\\
+\indent \    \textcolor{blue}{3.4 Random Forests}\\
+ 4. {What is boosting?}\\
+\indent \  \textcolor{blue}{4.1 Weighted dataset}\\
+\indent \  \textcolor{blue}{4.2 Different type of boosting algorithm}\\
+\indent \  \textcolor{blue}{4.3 AdaBoost}\\
+\indent \  \textcolor{blue}{4.4 Implementing AdaBoost}\\
+\indent \  \textcolor{blue}{4.5 GBM}\\
+\indent \  \textcolor{blue}{4.6 Implementing Gradient Boosting}\\
+\indent \  \textcolor{blue}{4.7 XGBM}\\
+\indent \  \textcolor{blue}{4.8 Implementing XGBoost}\\
+\indent \  \textcolor{blue}{4.9 Comparison of different boosting algorithms}\\
+5. {Limitations and Assumptions}\\
+6. {Questions}}}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Anshul Sangrame}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{What is Bootstrapping?}}}}
+Let's first start by understanding what is Bootstrapping. This statistical technique consists in generating samples of size B (called bootstrap samples) from an initial dataset of size N by randomly drawing with replacement B observations.
+\section{\text{\textcolor{black}{\large{What is Bagging?}}}}
+The algorithm is explained in the following steps:
+\begin{enumerate}
+    \item Given a dataset $D$ with $N$ training points and a training model
+    \item Create M bootstrap samples of $D$ i.e $\{\tilde{D}_{i}\}_{i=1}^{M}$ with same number of training points i.e $N$.
+    \item Create M copies of untrained model $\{h_i\}_{i=i}^{M}$ and train each $h_i$ on $\tilde{D_i}$
+    \item Let $y_i$ be predicted value of mode $h_i$. Then the final predicted value will be $y = \frac{1}{M}\sum_{i=1}^{M}y_i$ 
+\end{enumerate}
+
+
+
+\section{\text{{\large{How Bagging works?}}}}
+Now that we know the algorithms, we will try to understand how does it work. But for that, we need some knowledge of bias and variance.
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{3.1 Bias and variance}}}}
+\end{align*}
+Let $\hat{y}$ be the predicted target value of a random input $X$ and $y$ be the actual target value. $y_*$ be the best-predicted target value of input $X$ that can be made. We can show that,
+\begin{align*}
+    E[(\hat{y} - y)^2] = (y_* - E[\hat{y}])^2 + Var[\hat{y}] + Var[y]
+\end{align*}
+We can interpret the following terms in the above equation:
+\begin{enumerate}
+    \item $E[(\hat{y} - y)^2]$ is the expected loss of the predicted value. We need to minimize this.
+    \item $(y_* - E[\hat{y}])^2$ is called the bias. It indicates how close is the predicted value to the best prediction that can be achieved. Higher bias corresponds to underfitting.
+    \item $Var[\hat{y}]$ is called the variance. It indicates the amount of variability in the predictions (a higher value corresponds to overfitting).
+    \item $Var[y]$ is called the Bayes error and is the inherent unpredictability of the targets. We cannon reduce this.
+\end{enumerate}
+For a better understanding refer to the image below:
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics*[scale = 0.5]{./media/bias-and-variance.jpg}
+\end{figure}
+\newpage
+Other useful observations related to bias and variance are:
+\begin{enumerate}
+    \item High bias indicates that the model is less complex and is not trained sufficiently(i.e. training error is high) which indicates underfitting.
+    \item High variance indicates that the model is more complex and is over-trained (i.e. training error is low) which indicates overfitting.
+\end{enumerate}
+The above two points are portrayed in the following image:
+\begin{figure}[!ht]
+    \centering
+    \includegraphics*[scale=0.5]{./media/bias-and-variance-loss-graph.png}
+\end{figure}
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.2 How Bagging reduces variance?}}}}
+ \end{align*}
+In the previous section, we saw different terms in the expected loss function. Now we will try to understand how each term is affected in bagging.
+\begin{enumerate}
+    \item Bayes error: Unchanged, since we have no control over it.
+    \item Bias: Unchanged
+        \begin{align*}
+            E[\hat{y}] &= E[\frac{1}{M}\sum_{i=1}^{M}\hat{y}_i] \\
+                &= \frac{1}{M}\sum_{i=1}^ME[\hat{y}_i] \\
+                &= E[\hat{y}_1]
+        \end{align*}
+    \item Variance: Reduced, since we're averaging over independent
+    samples
+        \begin{align*}
+            Var[\hat{y}] &= Var[\frac{1}{M}\sum_{i=1}^{M}\hat{y}_i] \\
+                &= \frac{1}{M^2}\sum_{i=1}^{M} Var[\hat{y}_i] \\
+                &= \frac{1}{M}Var[\hat{y}_1]
+        \end{align*}
+\end{enumerate}
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.3 Effect of Correlation}}}}
+ \end{align*}
+Till now we assumed that the data are independent and then we saw the variance decreases by a factor of $M$. However, if the data are dependent on each other, the prediction made by each model is also not independent. Hence, we cannot claim the same. In fact, Variance is given by the following formula:
+\begin{align*}
+    Var[\frac{1}{M}\sum_{i=1}^{M}\hat{y_i}] = \frac{1}{M}(1-\rho)\sigma^2 + \rho\sigma^2
+\end{align*}
+Where $\rho$ is the correction factor and $\sigma$ is the standard deviation.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{3.4 Random Forests}}}}
+ \end{align*}
+Random Forest is a bagging method with a learning model as decision trees. In addition, while selecting a bootstrap dataset for each decision tree, it chooses a random set of features on which the decision tree will split. This additional trick will ensure all predictions made by decision trees are not dependent. \\
+\\
+Random forests are probably the best black-box machine learning algorithm. They often work well with no tuning whatsoever and are the most widely used algorithm in Kaggle competition.
+
+\section{\text{{\large{What is boosting?}}}}
+Boosting methods work in the same spirit as bagging methods: we build a family of models that are aggregated to obtain a strong learner that performs better. However, unlike bagging which mainly aims at reducing variance, boosting is a technique that consists of fitting sequentially multiple weak learners in a very adaptative way: each model in the sequence is fitted giving more importance to observations in the dataset that were badly handled by the previous models in the sequence. In this way, the bias is lowered.  \\
+\\
+The base model in boosting is the starting weak learning model. The base model is often a high-bias and low-variance model because boosting mainly focuses on reducing bias (and maybe increasing the variance as boosting can cause overfitting). Boosting algorithms also use weighted dataset which is discussed below.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.1 Weighted dataset}}}}
+ \end{align*}
+Till now the loss function was giving equal treatment to all data points i.e 
+\begin{align*}
+    Loss = \frac{1}{M}\sum_{i=1}^{M} L_i(\hat{y_i},y_i)
+\end{align*}
+The key idea of having a weighted dataset is that the learning algorithm can give more focus on data points with higher weights. In this way, we can control which data points should the learning algorithm put focus on. This is used in boosting since we can increase the weights of misclassified data points so that the next weak learner focuses on it.
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.2 Different type of boosting algorithm}}}}
+ \end{align*}
+There are mainly 5 types of boosting algorithms:
+\begin{enumerate}
+    \item AdaBoost (Adaptive Boosting)
+    \item GBM (Gradient Boosting Machine)
+    \item XGBM (Extreme Gradient Boosting Machine)
+    \item LightGBM
+    \item CatBoost
+\end{enumerate}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.3 AdaBoost}}}}
+ \end{align*}
+ An adaptative boosting (often called 'Adaboost'), we try to define our ensemble model as a weighted sum of L weak learners: 
+ \begin{align*}
+    H_T(X) = \sum_{t=1}^{T}\alpha_t h_t(x)
+ \end{align*}
+ $\alpha_t$ and $h_t$ are chosen such that we minimize the fitting loss which is given as follows:
+ \begin{align*}
+    \alpha_t,h_t = \arg \min_{\alpha_t,h_t} \frac{1}{N} \sum_{n=1}^{N} loss(y^{(n)},H_{T-1}(x^{(n)}) + \alpha_t h_T(x^{(n)}))
+ \end{align*}
+ We need to solve the above optimization problem. Here in this example, we will consider an exponential loss function given by:
+ \begin{align*}
+    Loss(y,\hat{y}) = \exp(-y\hat{y})
+ \end{align*}
+ Let $\mathbb{L}(h(X^{(n)}) \neq y^{(n)}) = \frac{1}{2}(1 - h(X^{(n)}).y^{(n)})$. Using this we can simplify the optimization problem as follow:
+ \begin{align*}
+    \alpha_t,h_t &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}) + \alpha_t h_T(x))) \\
+    &= \arg \min_{\alpha_t,h_t} \sum_{n=1}^{N} \exp(-y^{(n)}(H_{T-1}(x^{(n)}))) \exp(-y^{(n)}\alpha_t h_T(x^{(n)})) \\
+    &= \arg \min_{\alpha_t,h_t} w_T^{(n)} \exp(-y^{(n)}\alpha_t h_T(x^{(n)}))
+ \end{align*}
+ Solving the optimization problem we get 
+ \begin{align*}
+    \alpha_t &= \frac{1}{2} \log \frac{1 - err_t}{err_t} \\
+    \text{Where, } err_t &= \frac{\sum_{n=1}^{N}w_t^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}} \\
+ \end{align*}
+ With that, we also find that $h_t$ minimizes the weighted 0/1-loss i.e.
+ \begin{align*}
+    h_t = \arg \min_{h} \sum_{i=0}^{N} w^{(i)}_t \mathbb{L}(h(X^{(i)}) \neq y^{(i)})
+ \end{align*}
+ We also find the relationship between weights as well:
+ \begin{align*}
+    w_{t+1}^{(n)} = w_t^{(n)} \exp(-y^{(n)}\alpha_t h_t(x^{(n)}))
+ \end{align*}
+ \\
+The algorithm is given as follows:
+\begin{algorithm*}
+    \caption{AdaBoost}
+    \KwIn{Data $D$ with $N$ data points, a family of weak classifier, number of iterations T}
+    Initialize all weights ($w \in \mathbb{R}^N$) to $\frac{1}{N}$ \\
+    \For{$t = 1\dots T$}{
+        Train the classifier $h_t$ on the weighted dataset. \\
+        Compute weighted error as follows: \\
+        \begin{align*}
+            err_t \gets \frac{\sum_{n=1}^{N}w^{(n)}\mathbb{L}(h_t(X^{(n)}) \neq y^{(n)})}{\sum_{n=1}^{N}w^{(n)}}
+        \end{align*}
+        Compute the classifier coefficient as follows:
+        \begin{align*}
+            \alpha_t \gets \frac{1}{2} \log \frac{1 - err_t}{err_t}
+        \end{align*}
+        Update data weights as follows:
+        \begin{align*}
+            w^{(n)} \gets w^{(n)} \exp(-\alpha_t y^{(n)}h_t(X^{(n)}))
+        \end{align*}
+    }
+    \KwOut{$H(x) = sign(\sum_{t=1}^{T} \alpha_t h_t(x))$}
+\end{algorithm*}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.4 Implementing AdaBoost}}}}
+ \end{align*}
+ The full working code can be found on this \href{https://github.com/Anshul-Sangrame/Handouts-2022-2023/blob/main/Boosting%20and%20bagging/code/Adaboost/main.ipynb}{\textcolor{blue}{\underline{link}}}. The AdaBoost model is made completely using NumPy. We have used sci-kit-learn to import only the decision tree that can find the best split.
+ \lstinputlisting[language=Python,stringstyle=mystyle]{./code/Adaboost/Adaboost.py}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.5 GBM}}}}
+ \end{align*}
+ Just like AdaBoost, we try to define our ensemble model as a weighted sum of $L$ weak learners. Compared to AdaBoost, gradient boosting does not penalize missed-classified cases but uses a loss function instead. Similar to the gradient descent algorithm, gradient boosting casts the problem into a gradient descent one i.e. at each iteration, we fit a weak learner to the opposite of the gradient of the current fitting error concerning the current ensemble model. To put this mathematical perspective, the ensemble can be written as:
+ \begin{align*}
+    H_T(x) = H_{T-1}(x) - \alpha \nabla_{H_{T-1}} E(H_{T-1})(x)
+ \end{align*}
+ Where $E(.)$ is the fitting error which can be written as:
+ \begin{align*}
+    E(H_{T})(x) = \frac{1}{N} \sum_{n=1}^{N} loss(y^{(n)},H_{T}(x^{(i)}))
+ \end{align*}
+ The coefficient $\alpha$ is the learning rate that can be computed following a one-dimensional optimization process (line-search to obtain the best step size $\alpha$). Basically, unlike Adaboost there is no analytic expression of $\alpha$. Because of this, the gradient descent approach can more easily be adapted to a large number of loss functions. Thus, gradient boosting can be considered as a generalization of AdaBoost to arbitrary differentiable loss functions. \\
+\\
+ The algorithm for the regression problem with MSE as a loss function is given below:
+ \begin{algorithm*}
+    \caption{Gradient boosting}
+    \KwIn{$\alpha$, $T$, Data D with N training points, family of weak learner}
+    Train a weak learner $h_1$ on original data \\
+    $\forall i\in(1 \dots N)$ $r_i \gets -\nabla_{h_1(x_i)}loss(y_i,h_1(x_i))$ \\
+    $\implies \forall i\in{1 \dots N}$ $r_i \gets y_i - h_1(x_i)$ \\
+    \For{t = 2 to T}{
+        Train data $(x_1,r_1) \dots (x_N,r_N)$ on weak learner $h_t$ \\
+        $\forall i \in (1 \dots N)$ update $r_i$ as follows\\
+        $r_i \gets r_i - \alpha h_t(x_i)$ \\
+    }
+    \KwOut{Final model $H_T(x) = h_1(x) + \alpha \sum_{t=2}^{T} h_t(x)$}
+ \end{algorithm*}
+
+ \begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.6 Implementing Gradient Boosting}}}}
+ \end{align*}
+ The full working code can be found on this \href{https://github.com/Anshul-Sangrame/Handouts-2022-2023/blob/main/Boosting%20and%20bagging/code/Gradient%20boosting/main.ipynb}{\textcolor{blue}{\underline{link}}}. The GBM model is made completely using NumPy. We have used sci-kit-learn to import only the decision tree that can find the best split.
+ \lstinputlisting[language=Python, label=gcd]{./code/Gradient boosting/GBM.py}
+
+ \begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.7 XGBM}}}}
+ \end{align*}
+ XGBoost is an enhanced version of the gradient boosting method. Firstly, it improves overfitting by using regularisation. Secondly, it improves the runtime speed by optimizing sorting using parallel running. It is also a state-of-the-art model. In this handout, we will discuss the mathematical aspect of gradient boosting with L2 regularisation. We can write the ensemble as
+ \begin{align*}
+    H_T(X_i) = \hat{y}_i^{(T)} = H_{T-1}(X_i) + h_T(X_i)
+ \end{align*}
+ The loss function can be written as:
+ \begin{align*}
+    L^{(T)} = \sum_{i=1}^{N} l(y_i,\hat{y}_i^{(T-1)} + h_T(X_i)) + \Omega(h_T)
+ \end{align*}
+ Where $\Omega$ is regularisation. Using L2 regularisation and applying Taylor expansion we get,
+ \begin{align*}
+    L^{(T)} = \sum_{j=1}^{T}\left[\left(\sum_{i \in I_j} g_i \right)w_j + \frac{1}{2} \left(\sum_{i \in I_j} h_i + \lambda \right)w_j^2 \right] + \gamma T
+ \end{align*}
+ Where, 
+ \begin{align*}
+    g_i &= \partial_{\hat{y}_i^{(t-1)}}l(y_i,\hat{y}_i^{(t-1)}) \\
+    h_i &= \partial^2_{\hat{y}_i^{(t-1)}}l(y_i,\hat{y}_i^{(t-1)})
+ \end{align*}
+ The minimum value of loss found is
+ \begin{align*}
+    L^{(T)} = -\frac{1}{2}\sum_{j=1}^{T} \frac{(\sum_{i \in I_j} g_i)^2}{\sum_{i \in I_j}h_i + \lambda} + \gamma T + const
+ \end{align*} 
+ We need a split such that the decrease in this loss function increases. To formulate this mathematically, let $I_R$ and $I_L$ be the instance sets of left and right nodes after a split such that $I_R \cup I_L = I$. The loss reduction after the split is given by,
+ \begin{align*}
+    L_{split} = \frac{1}{2}\left[ \frac{(\sum_{i \in I_R} g_i)^2}{\sum_{i \in I_R}h_i + \lambda} + \frac{(\sum_{i \in I_L} g_i)^2}{\sum_{i \in I_L}h_i + \lambda} - \frac{(\sum_{i \in I} g_i)^2}{\sum_{i \in I}h_i + \lambda} \right] - \gamma
+ \end{align*}
+ We choose a split such that we increase $L_{split}$ and hence it will be our splitting criteria when creating a decision stump.
+ \begin{algorithm*}
+    \caption{Exact Greedy Algorithm for Split Finding with MSE as loss function}
+    \KwIn{Instance of node I, $g_i$,$\lambda$, Number of features: m}
+    $L_{split} \gets 0$ \\
+    $G \gets \sum_{i \in I} g_i$ \\
+    $H \gets len(I)$ \\
+    \For{k = 1 to m}{
+        $G_L \gets 0$ \\
+        $H_L \gets 0$ \\
+        \For{j in sorted(I, by $x_{jk}$)}{
+            $G_L \gets G_L + g_j$ \\
+            $H_L = H_L + 1$ \\
+            $G_R \gets G - G_L$ \\
+            $H_R \gets H - H_L$ \\
+            $L_{split} \gets max(L_{split}, \frac{G_R^2}{H_R + \lambda} + \frac{G_L^2}{H_L + \lambda} - \frac{G^2}{H + \lambda})$ \\
+        }
+    }
+    \KwOut{Split with maximum $L_{split}$}
+ \end{algorithm*}
+ \begin{algorithm*}[!ht]
+    \caption{extreme Gradient boosting}
+    \KwIn{Data, $\gamma$, $\alpha$, $\lambda$}
+    Fit the discussion stump $h_1$  on the data.\\
+    $\forall i\in{1 \dots N}$ $g_i \gets y_i - h_1(x_i)$ \\
+    \For{t = 2 to T}{
+        Train data $(x_1,y_1) \dots (x_N,y_N)$ on decision stump $h_t$ using values of $g_i$ and $\lambda$ \\
+        $\forall i \in (1 \dots N)$ update $g_i$ as follows\\
+        $g_i \gets g_i + \alpha h_t(x_i)$ \\
+    }
+    \KwOut{Final model $H_T(x) = h_1(x) + \alpha \sum_{t=2}^{T} h_t(x)$}
+ \end{algorithm*}
+\newpage
+ \begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.8 Implementing XGBoost}}}}
+ \end{align*}
+ The XGBM model and decision stump are made from scratch using NumPy.
+ \lstinputlisting[language=Python, label=gcd]{./code/XGBoost/XGBM.py}
+
+\begin{align*}
+    \textcolor{blue}{ \text{{\textbf{4.9 Comparison of different boosting algorithms}}}}
+ \end{align*}
+ Points you can consider for choosing boosting algorithm
+\begin{enumerate}
+    \item AdaBoost:
+        \begin{enumerate}
+            \item Focuses on misclassified cases.
+            \item It forms the foundation of boosting algorithm.
+        \end{enumerate}
+    \item GBM:
+        \begin{enumerate}
+            \item You can use any type of loss function.
+            \item Gradient descent is used to minimize the loss function.
+        \end{enumerate}
+    \item XGBoost
+        \begin{enumerate}
+            \item Improves on overfitting 
+            \item Optimize running time by tree parallelism and tree pruning
+        \end{enumerate}
+    \item LightGBM
+        \begin{enumerate}
+            \item further improves the speed of leaf-wise growth
+            \item Allow tuning of more parameter
+        \end{enumerate}
+    \item CatBoost:
+        \begin{enumerate}
+            \item Handles categorial features automatically.
+            \item Works efficiently with categorial type data.
+        \end{enumerate}
+\end{enumerate}
+
+\section{\text{{\large{Pros and cons of boosting}}}}
+\begin{enumerate}
+    \item Pros of boosting and cons of bagging:
+        \begin{enumerate}
+            \item boosting reduces the bias whereas bagging doesn't decrease bias.
+            \item In bagging we need to make sure predictions made by models are independent which is sometimes difficult in practice. Whereas, boosting doesn't need to worry about this.
+        \end{enumerate}
+    \item Pros of bagging and cons of boosting:
+        \begin{enumerate}
+            \item Since boosting is a sequential algorithm, it does not support parallel programming. whereas bagging can support parallel programming. 
+            \item Bagging decreases the variance whereas boosting can increase variance due to overfitting.
+        \end{enumerate}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{\text{{\large{Questions}}}}
+\textbf{Subjective : \\}
+\textbf{1) Can you justify briefly that the optimal prediction made for an input x is $y_* = E[y|x]$?\\
+2) Can you prove $E[(\hat{y} - y)^2|x)] = (E[t|x] - \hat{y})^2 + Var[t|x]$?\\
+3) Using the equation proved in question 2 can you answer question 1 again?\\
+4) Can you prove $E[(\hat{y} - y)^2)] = (y_* - \hat{y})^2 + Var(\hat{y}) + Var(t)$?\\
+5) Many machine libraries make use of parallel programming. Will libraries be more efficient in boosting algorithms or bagging algorithms? Justify\\
+6) In Adaboost we constructed a optimization problem, can you show that $h_t(x)$ is the minimizer of the weighted 0/1-loss?\\
+7) In bagging if the predictions of models are dependent then what will be the variance in terms of the Correlation factor ($\rho$) and standard deviation of one prediction($\sigma$)?}\\
+ \\
+\textbf{Objective :}\\
+\textbf{1) which of the following will be a good choice for the base model in boosting?}\\
+\textbf{a)} SVM
+\indent \textbf{b)} Neural network with 3 hidden layer
+\indent \textbf{c)} decision stump 
+\indent \textbf{d)} decision tree
+
+\end{document}
