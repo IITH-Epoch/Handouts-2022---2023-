@@ -61,6 +61,6 @@ class GBM(object):
             if i == 0:
                 y = h.predict(X)
                 continue
-            y += h.predict(X)
+            y += self.alpha*h.predict(X)
 
         return y
