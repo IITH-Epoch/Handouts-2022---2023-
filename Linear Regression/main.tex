@@ -1,0 +1,205 @@
+\documentclass{homework}
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption*{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Linear Regression}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {What is Linear Regression?}\\
+ 2. {How Linear Regression Works?}\\
+\indent \    \textcolor{blue}{2.1 Hypothesis}\\
+ 3. {Cost Function}\\
+\indent \  \textcolor{blue}{3.1 Why Mean Squared Error as Cost function?}\\
+ 4. {Algorithms to minimize the Cost Function}\\
+\textcolor{blue}{\indent \    4.1 Gradient Descent\\
+\indent  \   4.2 Normal Equation\\
+\indent  \   4.3 Gradient Descent v/s Normal Equation}\\
+5. {Limitations and Assumptions}\\
+6. {Questions}\\
+7. {Linear Regression with python}\\}}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Tejadhith} and \texttt{Divyanshu Bhatt}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{What is Linear Regression}?}}}
+Linear Regression is one of the \textbf{supervised learning}\footnote{Machines are trained with the data that is \textbf{tagged} with the correct output, which is used to predict the output} models of Machine Learning which tries to find the \textbf{linear} relationship between the input/feature variable X and the target variable y. 
+The model's output is a continuous value hence called \textbf{regression} hence the model is called \textbf{linear regression}.\\
+% while if the output is categorical it's called \textbf{classification}.\\
+ \\
+Let's look into a single feature/input example to get an idea of it.
+%  The Resistance is defined and values of current is generated and the respective voltage is generated with random noise. The trained model tries to fit the best possible line based on the noisy test data points. The predicted resistance and the error can be observed.
+The model is trained with the noisy data point observed in the V-I characteristics of the resistor, which has a resistance of 3$\Omega$. Model fits the best line as shown in following figure. Hence the trained model can predict the value of current based on the voltage provided by mapping it to the best fit line. It implies that ML models are not 100\% accurate as the figure shows slope = 3.04 and intercept = -0.3, where the expected values are 3 and 0, respectively.
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.23]{Example.png}
+\caption{\SMALL{{\fontfamily{pcr}\selectfont V-I Characteristics of a Resistor}}}
+\end{figure}
+\section{\text{\textcolor{black}{\large{How Linear regression works?}}}}
+The model finds a linear relationship between $X$ and $y$ based on the training data, and the output is given by the trained model based on the input mapping to the best fit line.\\ 
+The best fit line is defined such that the sum of squares of distance between the line and the target variable(y) is minimum.\\
+We define a linear function called as \textbf{Hypothesis}, then a \textbf{Cost/Loss function} that gives the error in the Hypothesis while an algorithm is used to reduce the Cost function.
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{2.1 Hypothesis}}}}
+\end{align*}
+X and y are defined as follows (N is the number of features, and M is the number of data points)
+\begin{equation*}
+  X = \begin{bmatrix} 
+x_1\\x_2\\\vdots\\x_M 
+\end{bmatrix}\in \mathbb{R}^{M \times N}
+\end{equation*}
+\begin{equation*}
+x_i = \begin{bmatrix} x_{i}^{(1)}&x_{i}^{(2)}& \cdots & x_{i}^{(N)}\end{bmatrix} \in \mathbb{R}^{1\times N}
+\end{equation*}
+\begin{equation*}
+y_i \in \mathbb{R}
+\end{equation*}
+where $x_i$ and $y_i$ denote the $i^\text{th}$ data point and $x_{i}^{(j)}$ denotes the $j^\text{th}$ feature of the $i^\text{th}$ data point.
+\begin{align*}
+    \theta = \begin{bmatrix}
+\theta_1\\\theta_2\\\vdots\\\theta_N
+\end{bmatrix}
+\end{align*}
+$\theta$ is defined as Weights/Parameter/Regression Coefficients\\
+\textbf{Hypothesis} of Linear Regression is defined as,\\
+\begin{align*}
+    \hat{y}_i = \langle x_i, \theta\rangle  + b_i
+\end{align*}
+where $\hat{y} \in \mathbb{R}$ is the predicted target variable, $b_i \in \mathbb{R}$ is called bias and $\langle \cdot,\cdot\rangle$ represents dot product between two vectors. \\
+Instead of explicitly adding the bias, we can include it inside our $\theta$ parameters, i.e. we can add $1$ as the last element in the vector $x_i$ and $b$ as the last element $\theta$. So $x_i \in \R^{1\times (N+1)}$ and $\theta \in \R^{N+1}$ and our equation changes as\\
+\begin{align*}
+    \hat{y}_i = \langle x_i, \theta\rangle 
+\end{align*}
+\section{\text{{\large{Cost/Loss Function}}}}
+Cost Function returns the \textbf{error between the predicted and the actual outcome}.\\
+\textbf{Mean Squared Error}(MSE) is the Cost function $L(\theta)$ in Linear Regression.
+\begin{align*}
+    L(\theta) &=\frac{1}{2M}\|\hat{y}-y\|^2\\
+    &=\frac{1}{2M}\displaystyle\sum^{M}_{i = 1}(\hat{y_i}-y_i)^2
+\end{align*}
+Where M is the number of samples
+\begin{align*}
+     L(\theta) = \frac{1}{2M}\displaystyle\sum^{M}_{i = 1}(x_i\theta -y_i)^2
+\end{align*}
+\begin{align*}
+  \textcolor{blue}{\textbf{3.1 Why Mean Squared Error as Cost function?}}
+\end{align*}
+We can consider our desired output and the actual output by the model as two points in the space. So we want our actual output to be as close as possible to the desired output. MSE calculates the distance between the desired output and the actual output. Hence, minimising the loss function (MSE) is the same as making our prediction more closer to the actual value. 
+
+
+\section{\text{{\large{Algorithms to minimize the Cost Function}}}}
+
+One of the algorithms used in Linear Regression to minimize the Cost function is Gradient Descent Algorithm.
+\begin{align*}
+   \textcolor{blue}{ \text{{\textbf{4.1 Gradient Descent}}}}
+\end{align*}
+In Gradient Descent, we move in the opposite direction of the slope to attain the global minimum, which is attained by finding the gradient of the Cost Function concerning each parameter and then updating the parameter iteratively.
+\begin{align*}
+    \theta^{(j)} = \theta^{(j)} - \alpha \frac{\partial}{\partial\theta^{(j)}}L(\theta)
+\end{align*}
+where $\alpha$ is the Learning rate. The negative gradient of the loss function approximately points toward the minimum of the function. Now, the learning rate decides how big the step should be taken in that direction. Setting the learning rate too high might skip the point of minimum, i.e. our gradient overshoots, while setting the learning rate low increases the time complexity because we have to train our model for more epochs to reach the minimum.\\
+% , i.e. Speed rate at which gradient moves during Gradient Descent
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.38]{GD.png}\\
+% \caption{\SMALL{{\fontfamily{pcr}\selectfont V-I Characteristics of a Resistor}}}
+\end{figure}\\
+Differentiating the loss function,
+\begin{align*}
+    \frac{\partial}{\partial\theta^{(j)}}L(\theta) &= \frac{\partial}{\partial\theta^{(j)}}\bigg(\frac{1}{2M}\displaystyle\sum^{M}_{i = 1}(x_{i}\theta -y_i)^2\bigg)\\
+    &= \frac{2}{2M}\displaystyle\sum^{M}_{i = 1}(x_{i}\theta -y_i)\ \frac{\partial}{\partial\theta^{(j)}}(x_{i}\theta)\\
+    &= \frac{1}{M}\displaystyle\sum^{M}_{i = 1}(x_{i}\theta -y_i)\ (x^{(j)}_{i})\\
+    &= \frac{1}{M}\langle X\theta -y , x^{(j)}\rangle
+\end{align*}
+Hence,
+\begin{equation*}
+    \implies \theta^{(j)} = \theta^{(j)} - \aplha \frac{\alpha}{M}\langle X\theta -y, (x^{(j)}) \rangle
+\end{equation*}
+For multiple samples,
+\begin{align*}
+\implies \theta^{(j)} = \theta^{(j)} - \frac{\alpha}{M}\displaystyle\sum_{i = 1}^{M}(x_i\theta  -y_i)\ (x_i^{(j)})
+\end{align*}
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{4.2 Normal Equation}}}}
+\end{align*}
+One of the other algorithms to minimize the Cost function is\textbf{ Normal Equation}. Instead of using the iterative approach of gradient descent, we can directly make the partial derivative of the cost function concerning $\theta$ zero\\
+\begin{align*}
+{\frac{d\mathcal{L(\theta)}}{ d\theta}} &= {d \over d\theta}\bigg(\frac{1}{2M}\displaystyle\sum^{M}_{i = 1}\|X\theta - y\|^2\bigg)\\&={1\over 2M}{d \over d\theta}\big((y-X\theta)^T(y-X\theta)\big)\\ &= {1\over 2M}{d \over d\theta}\big(y^Ty-y^TX\theta - \theta^TX^Ty + \theta^TX^TX\theta\big)\\ &={1\over 2M}( 0-y^TX-y^TX+2\theta^TX^TX)\\ &= {1\over M}(\theta^TX^TX-y^TX)
+\end{align*}
+Now, making the partial derivative equal to 0
+\begin{align*}
+    \implies& {\partial L \over \partial \theta} = 0 \\ 
+     \implies&  {1\over M}(\theta^TX^TX-y^TX) = 0\\
+     \implies&  \theta^TX^TX = y^TX\\
+     \implies& X^TX\theta = X^Ty\\
+     \implies& \theta = (X^TX)^{-1}X^Ty
+\end{align*}
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{4.3 Gradient Descent v/s Normal Equation}}}}
+\end{align*}
+Gradient descent is an iterative approach, whereas Normal Equation is an analytical approach. For a large data set, one should always use gradient descent because the time complexity of Gradient descent is much low as compared to the Normal Equation. For small data sets (when the no. of features is not too high), there is not much difference between the two, so Normal Equation can be used because there is no need for setting up any hyperparameters like learning rate in it.
+\begin{align*}
+\text{Gradient Descent Complexity} \longrightarrow \ O(knm)\\
+\text{Normal Equation Complexity} \longrightarrow \ O(n^3+mn^2)
+\end{align*}
+
+\section{\text{{\large{Limitations and Assumptions}}}}
+
+\textbf{Assumptions made while making the Linear Regression model :}\\
+\text{1) Linearity :} The relationship between X and Y is linear.\\
+\text{2) Independence :} Input/Features are independent of each other i.e co-relativity = 0\\
+3) Homoscedasticity : The variance of residual is the same for any value of X.\\
+4) Normality: For any fixed value of X, Y is normally distributed.\\
+\textbf{Limitation of Linear Regression model :}\\
+\text{1) Multi Co-Linearity :} Multi Co-Linearity should be removed using Dimensionality reduction techniques.\\
+\text{2) Outliers :} Data point that has high error and it influence's the best fine the most.\\
+\text{3) Overfitting :}Fits exactly against it's training data such that it doesn't perform well in test data.
+\section{\text{{\large{Questions}}}}
+\textbf{Subjective : \\}
+\textbf{1) In a simple linear regression model with n features which is trained over m data points. If n $>$ m, what would be the case?\\
+2) Is Linear Regression Generative (or) Discriminative ?\\
+3) Explain the Probabilistic interpretation of Linear Regression ?\\
+4) Why don't we use absolute values of difference as Cost Function ?\\
+5) Why is Normalization required for an data set ?\\
+6) What is Lasso and Ridge Regression? How is it different from Linear Regression?\\
+7) In Linear Regression, Is Mean Squared Error function Convex (or) Non-Convex?}\\
+ \\
+\textbf{Objective :}\\
+\textbf{1) How is $r^2$ score calculated?}\\
+\textbf{a)} $\displaystyle\frac{\sum(\hat{y}-\bar{y})}{\sum(y-\bar{y})}$ \indent \textbf{b)} $\displaystyle\frac{\sum(\hat{y}-\bar{y})^2}{\sum(y-\bar{y})^2}$ \indent \textbf{c)} $\displaystyle\frac{\sum(\hat{y}-\bar{y})}{\sum(y-\bar{y})^2}$ \indent \textbf{d)} $\displaystyle\frac{\sum(\hat{y}-\bar{y})^2}{\sum(y-\bar{y})}$
+\section{\text{{\large{Linear Regression with python}}}}
+A \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/Linear%20Regression/Linear%20Regression.ipynb}{\textcolor{blue}{\underline{Linear Regression model}}} is built from scratch by only using \texttt{numpy},\texttt{pandas} and \texttt{matplotlib} libraries.\\
+% ----------
+% \lstinputlisting[language=Python, label=gcd]{Linear Regression.py}
+\includepdf[page=-]{Linear Regression_code.pdf}
+% -------------
+% \section{\text{{\large{References}}}}
+% [1] - \href{https://scipython.com/blog/visualizing-the-gradient-descent-method/}{\textcolor{blue}{Visualizing the gradient descent method}}\\
+%  \\
+% 2 - \href{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}{\textcolor{blue}{Linear Regression(sklearn)}}
+\end{document}
