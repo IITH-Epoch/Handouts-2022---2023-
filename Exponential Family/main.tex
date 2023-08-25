@@ -1,0 +1,332 @@
+\documentclass{homework}
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+\usepackage{romannum}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption*{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Exponential Family}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+
+
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}}
+\renewcommand{\labelenumiv}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.\arabic{enumiv}}
+
+\begin{enumerate}
+\item \textbf{Introduction}
+\item \textbf{Fisher Neyman Theorem}
+\item \textbf{Properties}
+\begin{enumerate}
+    \item \textbf{\textcolor{blue}{Proofs}}
+\end{enumerate}
+\item \textbf{MLE Estimation}
+\item \textbf{Bayesian Inference}
+\item \textbf{Exponential Dispersion Family}
+\item \textbf{Generalised Linear Models}
+\begin{enumerate}
+    \item \textbf{\textcolor{blue}{Examples}}
+    \item \textbf{\textcolor{blue}{MLE Estimation}}
+\end{enumerate}
+\item \textbf{Limitations}
+\item \textbf{Questions}
+\end{enumerate}
+
+
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Divyanshu Bhatt}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{Introduction}}}}
+
+The Exponential Family is a class of probability distributions that exhibit a specific mathematical structure and share common properties. It is defined by its characteristic form, which allows for efficient computation and bayseian inference by giving a closed-loop solution.
+
+A distribution belongs to the Exponential Family if its probability density function (PDF) or probability mass function (PMF) can be expressed as:
+$$
+p(x\mid \eta) = h(x)\exp \left(\left\langle \eta, \phi(x)\right\rangle - A(\eta)\right)
+$$
+where $\eta$ is called as the natural parameter or canonical parameter, $\phi(x)$ is the sufficient statistics and $A(\eta)$ is called log partition function. The above form is derived from the Fisher Neyman Theorem which is explained below.
+
+Exponential family can also be written in the form
+$$
+p(x\mid \eta) = {1\over Z(\eta)}h(x)\exp \left(\left\langle \eta, \phi(x)\right\rangle \right)
+$$
+where $Z(\eta) = \exp(A(\eta))$. We can think of $Z(\eta)$ as the normalising constant for the probability distribution as it is independent of the random variable i.e.
+$$
+Z(\eta) = \int_x h(x) \exp\left(\eta^T \phi(x)\right) dx
+$$
+
+\section{\text{\textcolor{black}{\large{Fisher Neyman Theorem}}}}
+Let a random variable $X$ have the probability density function $p(x\mid \eta)$ that can be written in the form 
+$$
+p(x\mid \eta) = h(x) g_\eta(\phi(x))
+$$
+Here, $h(x)$ is a distribution independent of $\eta$. The function $g_\eta$ captures all the dependence of the probability distribution on $\eta$ via a function $\phi(x)$ which is called as sufficient statistics.
+
+Sufficient statistics carry all the information about $\eta$ which is needed to make inference. They condense the data into a reduced form while retaining the essential information needed for making inferences about the parameter. 
+
+Exponential Family as defined above is a special case of Fisher Neyman's equation where 
+$$
+g_\eta(\phi(x)) = \exp \left(\left\langle \eta, \phi(x)\right\rangle - A(\eta)\right)
+$$
+
+
+\section{\text{\textcolor{black}{\large{Properties}}}}
+The two main properties of the exponential family that helps in bayesian inference are 
+$${d A \over d \eta} = \mathbb{E}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+$${d^2 A \over d \eta^2} = \mathbb{V}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+
+where $\mathbb{E}$ and $\mathbb{V}$ represents the expectation and the variance.
+
+As variance is always non-negative, we get the double differentiation of the log partition function to be always non-negative i.e. 
+$$
+{d^2 A \over d \eta^2} \ge 0
+$$
+Thus, $A(\eta)$ is a convex function.
+
+For multivariable case the first formula remains the same but the second formula changes because we can differentiate with respect to some other dimension also i.e. 
+$$
+{\partial A \over \partial \eta_i} = \mathbb{E}[\phi_i(x)]
+\Rightarrow \nabla A = \mathbb{E}[\Phi(x)]
+$$
+
+$$
+{\partial A \over \partial \eta_i \partial \eta_j} = \mathbb{E}[\phi_i(x) \phi_j(x)] - \mathbb{E}[\phi_i(x)]\mathbb{E}[\phi_j(x)]
+\Rightarrow \nabla^2 A = \mathrm{Cov}(\Phi(x))
+$$
+
+
+\subsection{\text{\textcolor{blue}{\large{Proofs}}}}
+$${d A \over d \eta} = \mathbb{E}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+\renewcommand\qedsymbol{$\square$}
+\begin{proof}
+Writing the function $A$ in the log partition form and differentiating
+\begin{align*}
+    A(\eta) = \log Z(\eta)\\
+    \Rightarrow{d A \over d\eta} = {1\over Z(\eta)} {d Z \over d \eta}\\ 
+\end{align*}
+Expanding $Z(\eta)$ as the integral and differentiating the terms inside the integral with respect to $\eta$
+\begin{align*}
+    {d A \over d\eta} &= {1\over Z(\eta)} {d \over d \eta} \left(\int h(x) \exp\left(\eta^T \phi (x)\right) dx\right)\\ 
+    &= {1\over Z(\eta)} \int h(x) \exp\left(\eta^T \phi (x)\right) \phi(x) dx\\
+    &= {\int \phi(x) {{1\over Z(\eta)}h(x) \exp\left(\eta^T \phi (x)\right)}}\\
+    &= \int \phi(x) p(x\mid \eta) dx\\
+    &= \mathbb{E}_{p(x\mid \eta)}\left[\phi(x) \right]
+\end{align*}
+\end{proof}
+$${d^2 A \over d \eta^2} = \mathbb{V}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+\renewcommand\qedsymbol{$\square$}
+\begin{proof}
+Double differentiating the function 
+\begin{align*}
+{d A \over d\eta} &= {1\over Z(\eta)} {d \over d \eta} \left(\int h(x) \exp\left(\eta^T \phi (x)\right) dx\right)\\ 
+{d^2 A \over d\eta^2} &= {d\over d\eta}\left({1\over Z(\eta)} \int h(x) \exp\left(\eta^T \phi (x)\right) \phi(x) dx\right)\\ 
+&= {1\over Z(\eta)^2}\left(Z(\eta) {d\over d\eta} \left(\int h(x) \exp\left(\eta^T \phi (x)\right)\right) - {d Z\over d \eta}\left(\int h(x) \exp\left(\eta^T \phi (x)\right)\right)\right)\\
+&= {1\over Z(\eta)} {d\over d\eta} \left(\int h(x) \exp\left(\eta^T \phi (x)\right)\phi (x) dx\right) - {1\over Z(\eta)^2}{d Z\over d \eta}\left(\int h(x) \exp\left(\eta^T \phi (x)\right)\phi (x) dx\right)\\
+&=  \int {1\over Z(\eta)}h(x) \exp\left(\eta^T \phi (x)\right)\phi(x)^2 dx - {1\over Z(\eta)}{d Z\over d \eta}\left(\int {1\over Z(\eta)}h(x) \exp\left(\eta^T \phi (x)\right)\phi (x) dx\right)\\
+&= \int \phi(x)^2 p(x\mid \eta)dx - \underbrace{{1\over Z(\eta)}{d Z \over d \eta}}_{\mathtt{I}}\int \phi(x) p(x\mid \eta) dx \\
+\end{align*}
+$\mathtt{I}$ term is the same term as the previous property. Thus, it can be written in terms of expectation. The other terms are expectations of $\phi(x)^2$ and $\phi(x)$ respectively with respect to the distribution $p(x\mid \eta)$
+$$
+\begin{aligned}
+{d^2 A \over d\eta^2} &= \mathbb{E}_{p(x\mid \eta)}[\phi (x)^2] - \mathbb{E}_{p(x\mid \eta)}[\phi (x)]\mathbb{E}_{p(x\mid \eta)}[\phi (x)] \\ 
+\Rightarrow  &= {\mathbb {V}}[\phi(x)]
+\end{aligned}
+$$
+
+\end{proof}
+
+\section{\text{\textcolor{black}{\large{MLE Estimation}}}}
+With the help of the above defined properties, we can derive a closed-form solution for the MLE estimate for the parameters $\eta$. Assume $\mathcal D = \{x_1,\dots,x_N\}$ be independent and identically distributed samples from an exponential family. 
+The MLE problem will be formulated as 
+$$
+\max_{\eta} \ \log p(\mathcal D\mid \eta)
+$$
+Doing some mathematical manipulations for getting a closed form solution
+$$
+\begin{aligned}
+p(\mathcal D \mid \eta) &= \prod_{n=1}^N p(x_n\mid \eta) \\
+&= \prod_{n=1}^N h(x_n) \exp\left(\eta^T\phi(x_n) - A(\eta)\right)\\
+&= \left(\prod_{n=1}^N h(x_n)\right)\exp\left(\eta^T\sum_{n=1}^N \phi(x_n) - NA(\eta)\right)
+\\ \log p(\mathcal D \mid \eta) &= \underbrace{\sum_{n=1}^N\log h(x_n)}_{\text{constant w.r.t. $\eta$}} + \eta^T\sum_{n=1}^N \phi(x_n) - NA(\eta)
+\end{aligned}
+$$
+As the first term is constant with respect to $\eta$ we can remove it from the optimisation problem.
+$$
+\max_{\eta} \ \underbrace{\eta^T\sum_{n=1}^N \phi(x_n)}_{\mathtt{I}} - \underbrace{NA(\eta)}_{\mathtt{II}}
+$$
+$\mathtt{I}$ is linear in $\eta$. As $A(\eta)$ is a convex function, it makes $\mathtt{II}$ a concave function, resulting in the whole optimisation problem to be a concave optimisation problem. Thus, making the gradient $0$ will give the global optimum of the MLE problem.
+$$
+\begin{aligned}
+\nabla_\eta \log p(\mathcal D\mid \eta) &=\nabla_\eta\left(\eta^T \sum_{n=1}^N \phi(x) - NA(\eta)\right) \\
+&= \sum_{n=1}^N\phi(x_n) - N\nabla_\eta A(\eta)
+\end{aligned}
+$$
+From the first property we can write the gradient in the form of expectation.
+
+\begin{gather*}
+\nabla_\eta \log p(\mathcal D\mid \eta) = \sum_{n=1}^N\phi(x_n) - N\mathbb{E}_{p(x\mid \eta)}\left[\phi(x)\right] \\
+\Rightarrow \mathbb{E}_{p(x\mid \eta)}\left[\phi(x)\right] = {1\over N}\sum_{n=1}^N\phi(x_n)
+\end{gather*}
+As left side is a function of $\eta$ we can calculate the optimum value by solving the above equation.
+We are able to calculate the MLE solution of the parameters by only using $\phi(x)$. This is the reason we say that $\phi(x)$ i.e. the sufficient statistics captures all the important information of the parameters.
+
+\section{\text{\textcolor{black}{\large{Bayesian Inference}}}}
+For performing Bayesian inference, we need to consider a prior on the parameter. We are choosing it such that it is conjugate with the exponential family i.e. 
+$$
+p(\eta \mid \gamma, \tau) = {h(\eta)}\exp\left(\eta^T\tau - \gamma A(\eta) -A_c(\gamma, \tau)\right)
+$$
+where $\gamma$ and $\tau$ are new introduced parameter, $A(\eta)$ is the same function as defined in the exponential family, $A_c(\gamma, \tau)$ is introduced for normalising the above distribution i.e. 
+$$
+\exp(A_c (\gamma, \tau)) = \int_{\eta} h(\eta) \exp\left(\eta^T\tau - \gamma A(\eta)\right)
+$$
+
+The posterior after observing the data $\mathcal D$ can be written as
+$$
+\begin{aligned}
+p(\eta \mid \mathcal D) &\color{blue}\propto p(\eta) \color{violet}p(\mathcal D \mid \eta)\\
+&\color{blue}\propto h(\eta)\exp\left(\eta^T \tau -\gamma A(\eta)\right)\color{violet}\exp\left(\eta^T \sum_{n=1}^N \phi(x_n) - NA(\eta)\right)\\
+&\propto h(\eta) \exp\left(\eta^T\left(\tau + \sum_{n=1}^N \phi(x_n)\right)  - (\gamma + N)A(\eta)\right)
+\end{aligned}
+$$
+
+On comparing the above equation with the prior equation, we can see that the prior distribution hyperparameters got updated as given below resulting in the posterior distribution
+
+$$
+\begin{aligned}
+\tau &\leftarrow \tau + \sum_{n=1}^N \phi(x_n)\\
+\gamma &\leftarrow \gamma + N
+\end{aligned}
+$$
+So, we got a closed-form solution for updating the prior of the parameters.
+Now, calculating the closed-form solution for the posterior-predictive distribution i.e. 
+$$
+\begin{aligned}
+p(\mathcal D' \mid \mathcal D) &= \int \color{blue}p(\mathcal D' \mid \eta) \color{violet} p(\eta \mid \mathcal D) \color{black}d\eta \\
+&= \int \color{blue}\left(\prod_{n=1}^{N'} h(x_n')\right)\exp\left(\eta^T\sum_{n=1}^{N'}\phi(x_n') - N'A(\eta)\right)\\ & \qquad \qquad\qquad\color{violet}h(\eta)\exp\left(\eta^T\left(\tau+\sum_{n=1}^N\phi(x_n)\right)-(\nu+N)A(\eta) - A_c\left(\nu+N,\tau + \sum_{n=1}^N\phi(x_n)\right)\right)\color{black}d\eta\\
+\end{aligned}
+$$
+Abbreviating $\sum_{n=1}^N \phi(x_n)$ as $\phi(\mathcal D)$ and similarly, $\phi(\mathcal D') = \sum_{n=1}^{N'} \phi(x_n')$
+$$
+\begin{aligned}
+p(\mathcal D' \mid \mathcal D) &= {\color{blue}\prod_{n=1}^{N'} h(x_n') \color{black}\over \color{violet}\exp\left(A_c\left(\gamma+N,\tau + \phi(\mathcal D)\right)\right)}\int \color{violet}h(\eta)\color{black} \exp\left(\eta^T\left(\color{violet}\tau + \phi(\mathcal D) \color{black}+ \color{blue}  \phi(\mathcal D')\color{black}\right) - \left(\color{violet}\gamma + N \color{black}+ \color{blue}N'\color{black}\right)A(\eta)\right) \\
+&= {\prod_{n=1}^{N'} h(x_n') \over \exp\left(A_c\left(\gamma+N,\tau + \phi(\mathcal D)\right)\right)} \exp\left(A_c(\tau + \phi(\mathcal D) + \phi(\mathcal D'), \gamma + N + N')\right)\\\
+&= \prod_{n=1}^{N'} h(x_n') {\exp\left(A_c(\tau + \phi(\mathcal D) + \phi(\mathcal D'), \gamma + N + N') \right)\over \exp \left(A_c\left(\gamma+N,\tau + \phi(\mathcal D)\right)\right)}
+\end{aligned}
+$$
+Thus, we obtained a closed form solution for the predictive probability distribution which is the ratio of the exponential of log partition functions one with $N + N'$ datapoints and other with $N$ datapoints
+
+\section{\text{\textcolor{black}{\large{Exponential Dispersion Family}}}}
+Exponential Dispersion Family is an extension to Exponential Family in which we introduce a new parameter $\sigma$ called dispersion parameter.
+$$
+p(x\mid \eta, \sigma^2) = h(y,\sigma^2) \exp\left(\eta^T x - A(\eta) \over \sigma^2\right)
+$$
+If the value of $\sigma$ is fixed then it is the standard exponential family. Adding this parameter doesn't change the properties much
+$${d A \over d \eta} = \mathbb{E}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+$${d^2 A \over d \eta^2} = {1\over \sigma^2}\mathbb{V}_{p(x\mid \eta)}\left[\phi(x)\right]$$
+
+\section{\text{\textcolor{black}{\large{Generalised Linear Models}}}}
+The linear models such as Linear Regression and Logistic Regression models have constraints on their output i.e. $\mathbb R^2$ and binary values respectively. For having some other constraints in the output, example while predicting the weight of a person given other features, we don't want output to be negative. Applying Linear Regression directly won't be that effective as it can produce negative values also.
+
+Generalised Linear Models (GLMs) can be used to model having non-negative or integer outputs. GLMs model the response using an exponential dispersion family i.e. 
+$$
+p(y\mid \eta, \sigma^2) = h(y, \sigma^2)\exp\left(\eta y - A(\eta) \over \sigma^2\right)
+$$
+here, we considered $y\in \R$ for simplicity which implies $\eta \in \R$. Moreover, here the sufficient statistics $\phi(y) = y$
+The natural parameter $\eta$ is dependent on the input as 
+$$
+\eta = w^Tx
+$$
+
+% On the other hand, $\psi$ is called as the link function which is a mapping from the expected value $\mu$ to the natural parameter $\eta$
+\subsection{\text{\textcolor{blue}{\large{Examples}}}} \\
+
+For Probabilistic Linear Regression we have 
+$$
+\begin{aligned}
+p(y\mid x, w, \sigma^2) &= \mathcal N(w^Tx, \sigma^2)\\
+&= {1\over \sqrt{2\pi \sigma^2}}\exp\left(-{(y - w^Tx)^2 \over 2\sigma^2}\right)\\
+&= \underbrace{{1\over \sqrt{2\pi \sigma^2}}\exp\left(-{y^2\over 2\sigma^2} \right)}_{h(y,\sigma^2)}\underbrace{\exp\left({{w^Txy - {(w^Tx)^2 \over 2}\over \sigma^2}}\right)}_{\exp{\eta y - A(\eta) \over \sigma^2}}
+\end{aligned}
+$$
+Thus, linear regression is a type of GLM with $A(\eta) = {\eta^2 \over 2}$ and $h(y,\sigma^2) = {1\over \sqrt{2\pi \sigma^2}}\exp-{y^2\over 2\sigma^2} $ 
+
+For Binomial Regression i.e. $y\in \{0,1,\dots, N\}$
+$$
+\begin{aligned}
+p(y\mid x, w) &= \binom{N}{y} \pi^y(1-\pi)^{N-y}\\
+&= \binom{N}{y} \exp\left(y\log \pi + (N - y)\log (1-\pi)\right)\\
+&= \underbrace{\binom{N}{y}}_{h(y)} \exp\left(\underbrace{y\log \left(\pi\over 1-\pi\right)}_{\eta y} + \underbrace{N\log (1-\pi)}_{A(\eta)}\right)\\
+\end{aligned}
+$$
+Thus, binomial regression is another type of GLM where $\pi = \sigma(w^Tx)$, $\eta = \log\left(\pi \over 1-\pi\right) = w^Tx$, $h(y) = \binom{N}{y}$ and $A(\eta) = N \log (1 + \exp \eta) = -N\log (1 - \pi)$ \\
+Above, we used the standard exponential family and the $\sigma(\cdot)$ here represents the sigmoid function.
+
+\subsection{\text{\textcolor{blue}{\large{MLE Estimation}}}}\hfill \\
+$$
+\begin{aligned}
+\mathcal L=\log p(Y\mid \eta) &= \log \prod_{n=1}^N h(y_N)\exp(y_nw^Tx_n - A(\eta_n))\\ 
+&= \sum_{n=1}^N \log h(y_n) +w^T\sum_{n=1}^Ny_nx_n-\sum_{n=1}^NA(\eta_n)
+\end{aligned}
+$$
+Differentiating with respect to the weights 
+$$
+\begin{aligned}
+{d \mathcal L \over d w} &= \sum_{n=1}^{N} y_n x_n - \sum_{n=1}^N {d A \over d \eta_n} {d \eta_n \over d w}\\
+&= \sum_{n=1}^{N} y_n x_n - \sum_{n=1}^N \mathbb{E}_{p(y\mid \eta)}[y] x_n\\
+&= \sum_{n=1}^N \left(y_n - \mathbb{E}_{p(y\mid \eta)}\right) x_n
+\end{aligned}
+$$
+Equating the above equation to $0$ we will get the global optimum value because the function is concave in $\eta$ which implies it is concave in $w$ as there exists a linear relation between the two.
+
+\section{\text{\textcolor{black}{\large{Limitations}}}}
+\begin{enumerate}
+    \item \textbf{Distributional Assumption}: We need to specify a probability distribution for the output variable which is assumed to belong to the exponential family. Thus, it is not robust to capture data coming from any distribution.
+    \item \textbf{Model Misspecification}: If the chosen GLM does not accurately represent the true underlying relationship between the predictors and the response, the model may produce biased or misleading results. 
+    \item \textbf{Linearity Assumption}: It assumes the presence of a linear relationship between the predictors and the linear prediction. However, achieving this linear relationship often requires preprocessing the features, which can be challenging in practice.
+    \item \textbf{Effect of Outliers}: GLMs gets highly affected by outliers and there predictions change drastically because of them.
+\end{enumerate}
+
+\section{\text{\textcolor{black}{\large{Questions}}}}
+\subsection{\text{\textcolor{blue}{\large{Subjective}}}}\hfill \\
+\begin{enumerate}
+    \item What are the key assumptions underlying the use of GLMs?
+     \item Show that Bernoulli distribution belongs to the exponential family even though it doesn't have the function $\exp$ in it. 
+    \item Under what assumption does Exponential Dispersion Family becomes the Standard Exponential Family.
+    \item Prove the properties of Exponential Dispersion Family and how are they different from the Standard Exponential Family results?
+\end{enumerate}
+\subsection{\text{\textcolor{blue}{\large{Objective}}}}\hfill \\
+\begin{enumerate}
+    \item What is the main difference between Generalized Linear Models (GLMs) and ordinary linear regression?
+    \begin{itemize}
+        \item GLMs can handle non-normal response variables
+        \item GLMs require the assumption of linearity
+        \item GLMs are only applicable to binary data
+        \item GLMs use a different estimation method
+    \end{itemize}
+    \item Which of the following is NOT a commonly used distribution from the Exponential Family?
+    \begin{itemize}
+        \item Beta distribution
+        \item Poisson distribution
+        \item Weibull distribution
+        \item Chi-squared distribution
+    \end{itemize}
+\end{enumerate}
+\end{document}
