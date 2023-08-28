@@ -1,0 +1,287 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{listings}
+
+
+
+
+
+%Shortcut for strings "Code" and "List of Code"
+\renewcommand{\lstlistingname}{Code}
+\renewcommand{\lstlistlistingname}{List of Code}
+
+%This is the template for code styling, named as "mystyle"
+
+\pagenumbering{gobble}
+\usepackage{pdfpages}
+\definecolor{azure(colorwheel)}{rgb}{0.0, 0.5, 1.0}
+\usepackage{xcolor}
+\usepackage{biblatex}
+\usepackage{caption}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{enumerate}
+\captionsetup[figure]{labelformat=empty}
+\usepackage{amsmath}
+\usepackage{hyperref}
+% \usepackage[light,math]{kurier}
+% \usepackage[T1]{fontenc}
+% \usepackage{titletoc,tocloft}
+% \setlength{\cftsubsecindent}{3cm}
+% \setlength{\cftsubsubsecindent}{4cm}
+% \dottedcontents{subsection}[1cm]{}{}{}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+	backgroundcolor=\color{backgroundcolour},
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{green!60!black},
+	keywordstyle=\color{magenta},
+	stringstyle=\color{blue!50!red},
+	showstringspaces=false, 
+	captionpos=b, %Position of caption top/bottom
+	%numbers=left,	%This command adds line numbers to the code
+	%numberstyle=\footnotesize\color{gray}, %This command sets the colour of the line numbers
+	%numbersep=10pt, %This command determines the separation of the line numbers from the main margin
+	%stepnumber=2,
+	tabsize=2,
+	frame=single, %setting to select the frame for code ... options available {L,single,shadowbox}
+	%framerule=1pt, %selecting the width of the frame
+	%rulecolor=\color{red}, %selecting the colour of the frame
+	breaklines=true,
+	inputpath=code
+}
+
+
+\begin{document}
+\begin{center}
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.35]{image.png}
+\caption{{{\fontfamily{pcr}\selectfont The AI-ML and Data Science Club of IITH}}}
+\end{figure}
+\end{center}
+\begin{align*}
+{\LARGE{\textbf{Support Vector Machine}}}
+\end{align*}
+\graphicspath{{./media/}}
+\begin{align*}
+\large{\textbf{{Contents}}}
+\end{align*}
+{\textcolor{black}{\textbf{
+ \\
+ 1. {What is a Support Vector Machine?}\\
+ 2. {Mathematical Formulation }\\
+\indent \    \textcolor{blue}{2.1 Geometrical Margin}\\
+ 3. {Finding the optimal hyperplane}\\
+ 4. {Soft margin SVM}\\
+ 5. {Questions}\\
+6. {SVM with python}\\
+}}
+\begin{center}
+    {\textbf{Compiled by :}
+    \texttt{Srinith}}
+\end{center}
+
+\newpage
+\section{\text{\textcolor{black}{\large{What is a Support Vector Machine}?}}}
+Support Vector Machine (SVM) is one of the most popular Machine
+Learning Classifiers. It falls under the category of Supervised learning
+algorithms and uses the concept of a Margin to classify between classes. The objecttive of the SVM is to find a hyper place in an N-dimentional space(N - number of features) that distinctly classifies the datapoints. We can say that this works well for linear seperable data .This classifier is mostly used for binary classification. Our objective is to find a plane that has maximum margin , i.e maximum distance from the closest points on both sides of the plane. Support vectors are the datapoints which influence the position and orientation of the hyperplane , i.e the datapoints which are closer to the hyperplane.
+
+
+\section{\text{\textcolor{black}{\large{Mathematical Formulation}}}}
+Let us consider binary-classification at the moment and it is linearly seperable . Let the classes be represented as \{-1,1\}. Suppose there are m given samples , as $(x_1,y_1),(x_2,y_2),...,(x_m,y_m)$ , where $y_i$ belongs to \{-1,1\}. 
+
+Now we try to find the hyperplane which separates the two classes.
+\begin{align*}
+    f(x) &= < w,x > + b
+\end{align*}
+where $w \in R^n$ and $b\in R$. The hyperplane has the normal vector $w$ and the intercept $b$ ,such that ,
+\begin{align*}
+    \begin{cases}
+        < w,x_n > + b \ge 0 & \text{when} \ y_n=1\\
+        < w,x_n > + b \le 0 & \text{when} \ y_n=-1
+    \end{cases}
+\end{align*}
+
+But we can find many such $w$ . So, we that's why we consider the hyperplane which has the maximum margin .
+
+\begin{align*}
+    \textcolor{blue}{\text{{\textbf{2.1 Geometrical Margin}}}}
+\end{align*}
+
+For a data-point $(X^i,y_i)$ , geometrical margin $\gamma^i$ is the distance of $(X^i,y^i)$ from the decision surface.
+\begin{align*}
+    \gamma^i = \dfrac{y_i(w^{T}X^i + b)}{||w||}
+\end{align*}
+And wrt to the whole dataset it is the minimum over all the datapoints.
+\begin{align*}
+    \gamma = \min_{i}\gamma^i
+\end{align*}
+So, now our objective is to find $w$ and $b$ which maximise the value of geometrical margin wrt to the dataset ,i.e,
+\begin{align*}
+    &\max_{\gamma,w,b} \gamma \\ 
+    \text{    s.t.   }  y_i(w^{T}X^i + b) &> \gamma  , ||w|| = 1
+\end{align*}
+In other words , we want the positive examples to be further than $\gamma$ from the hyperplane and the negative examples to be further than distance $\gamma$ in negative direction .
+
+
+
+
+
+\section{\text{{\large{Finding the optimal hyperplane}}}}
+We have seen what has to be maximised above , we can modify it to another form .
+
+let $x_s$ be a supporting vector on the positive side on the hyper plane .Then ,
+\begin{align*}
+    x_s = x_s' + \gamma \hat{w}
+\end{align*}
+where $x_s'$ is a point on the hyper plane and $\hat{w}$ is unit vector normal to the hyperplane . And since its a supporting vector , the distance from the hyperplane will be $\gamma$.
+
+So , now if we take margin to be 1 rather than normalising the vector , we can say as $x_s'$ lies on the hyper plane and $x_s$ lies on the plane $\langle w,x_s \rangle + b = 1$, 
+\begin{align*}
+    \langle w,x'_s\rangle + b &= 0\\
+    \bigg\langle w,x_s-\gamma{w\over \|w\|}\bigg\rangle + b &= 0\\ \langle w,x_s\rangle + b + \bigg\langle w,-\gamma{w\over \|w\|}\bigg\rangle &= 0\\ 
+    \bigg\langle w,\gamma{w\over \|w\|}\bigg\rangle &= 1\\
+    \gamma &={1\over \|w\|}
+\end{align*}
+
+So , we can modify the condition to ,
+\begin{align*}
+    \min_{w,b} \dfrac{1}{2}||&w||^2 \\ 
+    \text{    s.t.   }  y_i(w^{T}X^i + b) &> 1  
+\end{align*}
+
+This is a standard quadratic programming optimization problem that can be solved by using Lagrange
+multipliers. We can define a single loss function as,
+\begin{align*}
+    L(w,b,\alpha) = \dfrac{1}{2}||w||^2 - \sum_{i=1}^n \alpha_i [y_i(\langle w,x_i\rangle +b)-1]
+\end{align*}
+Setting $\nabla L(w, b, \alpha) = 0$, we get
+\begin{align*}
+    \dfrac{dL(w, b, \alpha)}{dw} &= 0 \\
+    \dfrac{d\left(\dfrac{1}{2}||w||^2 - \sum_{i=1}^n \alpha_i [y_i(\langle w,x_i\rangle +b)-1]\right)}{dw} &= 0 \\
+    w &= \sum_{i=1}^n\alpha_iy_ix_i
+\end{align*}
+\begin{align*}
+    \dfrac{dL(w, b, \alpha)}{db} &= 0 \\
+    \sum_{i=1}^n\alpha_iy_i &= 0
+\end{align*}
+
+\section{\text{{\large{Soft Margin SVM}}}}
+When we consider the dataset which is not linearly sepeable , we accept misclassifications.Soft margin SVM takes care of optimising this.To minimize the error, we should define a loss function. A common loss function used for soft margin is the hinge loss.
+\begin{align*}
+    max\{0 , 1 - y_i(\langle w,x_i\rangle +b)\}
+\end{align*}
+A new regularization parameter C controls the trade-off between maximizing the margin and minimizing the loss.The problem for soft max gets converted to,
+\begin{align*}
+    \min_{w,b} \dfrac{1}{2}||&w||^2 + C\sum_{i = 1}^n \eta_i \\ 
+    \text{    s.t.   }  y_i(w^{T}X^i + b) &> 1 - \eta_i
+\end{align*}
+We change the loss function a bit , bringing the hingeloss function
+\begin{align*}
+    L(w,b,\alpha) = \dfrac{1}{2}||w||^2 + \dfrac{C}{N}\left[\sum_{i=1}^n max (0 ,\alpha_i [1 - y_i(\langle w,x_i\rangle +b)] )\right]
+\end{align*}
+
+where $C$ is the regularisation parameter , larger $C$ gives a narrow margin and smaller $C$ results in the wider margin.
+
+Now, as usual we can use SGD to find the optimal weights .
+\section{\text{{\large{Questions}}}}
+
+\textbf{Subjective : }
+\begin{enumerate}
+    \item What is the significance of the threshold term b?
+    \item  Is SVM more memory efficient that other algorithms? Give reason.
+    \item What is the condition on weight vector for functional and geometrical
+margin to be equal?
+    \item What are the disadvantages of using SVM?
+    \item Can SVMs be used for multi-class classification? If yes , how?\\[10pt]
+\end{enumerate}
+
+
+\textbf{Objective : }
+\begin{enumerate}[1)]
+    \item Scaling W (weight vector) changes the value of geometrical margin.
+    \begin{enumerate}[a)]
+        \item True
+        \item False
+    \end{enumerate} 
+     \item Feature scaling and outlier removal is not required in SVM.
+    \begin{enumerate}[a)]
+        \item True
+        \item False
+    \end{enumerate} 
+    \item For a given feature vector x of dimension n, polynomial kernel
+function can calculate a polynomial of order m from x in \_\_\_\_\_\_ time
+complexity.
+    \begin{enumerate}[a)]
+        \item  O(n)
+        \item O($n^2$)
+        \item O($n^m$)
+        \item O(nm)
+    \end{enumerate}
+\end{enumerate}
+
+
+
+\section{\text{{\large{SVM with python}}}}
+ \href{https://github.com/IITH-Epoch/Handouts-2022-2023/blob/main/SVM/SVM.ipynb}{\textcolor{blue}{\underline{SVM classifier}}} code snippets 
+
+\begin{lstlisting}[language=python, style = mystyle]
+	  import numpy as np
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+    # SVM soft margin classifier
+class SVM:
+    def __init__(self, C=1.0):
+        self.C = C
+        self.weights = None
+        self.bias = None
+
+    def train(self, X, y, learning_rate=0.01, num_epochs=1000):
+        num_samples, num_features = X.shape
+
+        # Initialize weights and bias
+        self.weights = np.zeros(num_features)
+        self.bias = 0
+
+        # Gradient descent training
+        for epoch in range(num_epochs):
+            # Compute margin and loss
+            margin = y * (np.dot(X, self.weights) + self.bias)
+            loss = 1 - margin
+
+            # Apply hinge loss function
+            loss = np.maximum(0, loss)
+
+            # Compute the gradient
+            dW = self.weights - self.C * np.dot(X.T, y * (loss > 0))
+            dB = -self.C * np.sum(y * (loss > 0))
+
+            # Update weights and bias
+            self.weights -= learning_rate * dW
+            self.bias -= learning_rate * dB
+
+    def predict(self, X):
+        # Predict class labels
+        y_pred = np.sign(np.dot(X, self.weights) + self.bias)
+        return y_pred.astype(int)
+\end{lstlisting}
+\begin{lstlisting}[language=python, style = mystyle]
+	  svm = SVM(C = 1)
+    svm.fit(X_train, y_train)
+    y_pred = svm.predict(X_test)
+
+\end{lstlisting}
+
+
+\end{document}
+
